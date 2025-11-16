@@ -1,0 +1,86 @@
+[gd_scene load_steps=4 format=3 uid="uid://b57qqm1eu4yv2"]
+
+[ext_resource type="Script" uid="uid://dnou7qehtq4sb" path="res://logic/menu.gd" id="1_0xm2m"]
+[ext_resource type="Script" uid="uid://cbc42k1vud14e" path="res://logic/main.gd" id="1_h2yge"]
+[ext_resource type="Script" uid="uid://blbpyrk76vov0" path="res://logic/board.gd" id="1_ig7tw"]
+
+[node name="Main" type="Node"]
+script = ExtResource("1_h2yge")
+
+[node name="Menu" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("1_0xm2m")
+
+[node name="ConnectPanel" type="VBoxContainer" parent="Menu"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+alignment = 1
+
+[node name="ServerURL" type="LineEdit" parent="Menu/ConnectPanel"]
+layout_mode = 2
+text = "localhost:3000/ws"
+placeholder_text = "server"
+alignment = 1
+
+[node name="PlayerName" type="LineEdit" parent="Menu/ConnectPanel"]
+layout_mode = 2
+text = "Pepe"
+placeholder_text = "Player name"
+alignment = 1
+
+[node name="ConnectButton" type="Button" parent="Menu/ConnectPanel"]
+layout_mode = 2
+text = "Connect"
+
+[node name="LobbyPanel" type="VBoxContainer" parent="Menu"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+alignment = 1
+
+[node name="CreateGameBtn" type="Button" parent="Menu/LobbyPanel"]
+layout_mode = 2
+text = "Create game
+"
+
+[node name="JoinGameBtn" type="Button" parent="Menu/LobbyPanel"]
+layout_mode = 2
+text = "Join game"
+
+[node name="ExitBtn" type="Button" parent="Menu/LobbyPanel"]
+layout_mode = 2
+text = "Exit"
+
+[node name="RefreshBtn" type="Button" parent="Menu/LobbyPanel"]
+layout_mode = 2
+
+[node name="GameList" type="ItemList" parent="Menu/LobbyPanel"]
+layout_mode = 2
+
+[node name="StatusLabel" type="Label" parent="Menu/LobbyPanel"]
+layout_mode = 2
+
+[node name="Game" type="Node2D" parent="."]
+visible = false
+
+[node name="Board" type="Node2D" parent="Game"]
+script = ExtResource("1_ig7tw")
+
+[node name="Tiles" type="Node2D" parent="Game/Board"]
+
+[node name="Pieces" type="Node2D" parent="Game/Board"]

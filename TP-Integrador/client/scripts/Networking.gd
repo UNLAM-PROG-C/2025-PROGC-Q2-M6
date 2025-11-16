@@ -1,0 +1,133 @@
+﻿extends Node
+
+## Signals to notify UI, Store, Game, etc
+signal connected(player_id)
+signal connection_failed(reason)
+signal disconnected()
+signal game_created(game_id)
+signal joined_game(game_id)
+signal game_state(payload)
+signal move_made(from, to)
+signal error_received(message)
+
+var peer: WebSocketPeer
+var url: String = ""
+var is_connecting := false
+var is_open := false
+var player_id := ""
+
+func connect_ws(_url: String):
+	url = _url
+	peer = WebSocketPeer.new()
+
+	var err: int = peer.connect_to_url(url)
+	if err != OK:
+		emit_signal("connection_failed", "connect_to_url failed: %s" % err)
+		return
+
+	is_connecting = true
+	is_open = false
+
+
+func _process(delta: float) -> void:
+	if peer == null:
+		return
+
+	peer.poll()
+
+	match peer.get_ready_state():
+
+		WebSocketPeer.STATE_CONNECTING:
+			# Waiting for connection handshake
+			pass
+
+		WebSocketPeer.STATE_OPEN:
+			if not is_open:
+				# First time we enter OPEN state
+				is_open = true
+				is_connecting = false
+				# NOTE: the server sends "connected" as a *message*, NOT immediately on handshake
+
+			# Read all packets
+			while peer.get_available_packet_count() > 0:
+				var raw := peer.get_packet().get_string_from_utf8()
+				_on_message(raw)
+
+		WebSocketPeer.STATE_CLOSING:
+			# Normal closing handshake
+			pass
+
+		WebSocketPeer.STATE_CLOSED:
+			if is_open:
+				is_open = false
+				emit_signal("disconnected")
+			if peer.get_close_code() != -1:
+				print("Closed WS: %s" % peer.get_close_reason())
+
+
+func _on_message(text: String) -> void:
+	var msg = JSON.parse_string(text)
+	if msg == null:
+		emit_signal("error_received", "Invalid JSON from server")
+		return
+
+	var type = msg.get("type", "")
+	var payload = msg.get("payload", {})
+
+	match type:
+
+		"connected":
+			player_id = payload.playerId
+			emit_signal("connected", player_id)
+
+		"error":
+			emit_signal("error_received", payload)
+
+		"game_created":
+			emit_signal("game_created", payload.gameId)
+
+		"joined_game":
+			emit_signal("joined_game", payload.gameId)
+
+		"move_made":
+			emit_signal("move_made", payload.from, payload.to)
+
+		"game_state":
+			emit_signal("game_state", payload)
+
+		"left_game":
+			# No payload
+			emit_signal("disconnected")
+
+		_:
+			print("Unknown WS type: ", text)
+
+
+#
+# ---- Sending ----
+#
+
+func send_create_game():
+	_send({"type": "create_game"})
+
+func send_join_game(game_id: String):
+	_send({
+		"type": "join_game",
+		"payload": { "gameId": game_id }
+	})
+
+func send_make_move(from_square: String, to_square: String):
+	_send({
+		"type": "make_move",
+		"payload": {
+			"from": from_square,
+			"to": to_square
+		}
+	})
+
+func send_leave_game():
+	_send({"type": "leave_game"})
+
+func _send(dict: Dictionary):
+	if peer != null and peer.get_ready_state() == WebSocketPeer.STATE_OPEN:
+		peer.send_text(JSON.stringify(dict))
