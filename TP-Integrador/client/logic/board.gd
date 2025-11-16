@@ -1,0 +1,83 @@
+extends Node2D
+
+@onready var tile_container: Node2D = $Tiles
+@onready var piece_container: Node2D = $Pieces
+
+const TILE_SIZE := 80
+const TILE_SCENE := preload("res://BoardTile.tscn")
+const FILES := ["a","b","c","d","e","f","g","h"]
+const RANKS := [8,7,6,5,4,3,2,1]
+var tiles := {}
+
+var PIECE_TEXTURES := {
+	"WHITE_PAWN": preload("res://sprites/pieces/white_pawn.svg"),
+	"WHITE_KNIGHT": preload("res://sprites/pieces/white_knight.svg"),
+	"WHITE_BISHOP": preload("res://sprites/pieces/white_bishop.svg"),
+	"WHITE_ROOK": preload("res://sprites/pieces/white_rook.svg"),
+	"WHITE_QUEEN": preload("res://sprites/pieces/white_queen.svg"),
+	"WHITE_KING": preload("res://sprites/pieces/white_king.svg"),
+
+	"BLACK_PAWN": preload("res://sprites/pieces/black_pawn.svg"),
+	"BLACK_KNIGHT": preload("res://sprites/pieces/black_knight.svg"),
+	"BLACK_BISHOP": preload("res://sprites/pieces/black_bishop.svg"),
+	"BLACK_ROOK": preload("res://sprites/pieces/black_rook.svg"),
+	"BLACK_QUEEN": preload("res://sprites/pieces/black_queen.svg"),
+	"BLACK_KING": preload("res://sprites/pieces/black_king.svg"),
+}
+
+func _ready():
+	_generate_board()
+	call_deferred("_connect_store_signal")
+
+func _connect_store_signal():
+	Store.connect("board_changed", Callable(self, "_on_board_changed"))
+
+func _generate_board():
+	for r in range(8):
+		for f in range(8):
+			var tile := TILE_SCENE.instantiate()
+
+			var is_dark := ((r + f) % 2 == 1)
+			tile.base_color = Color(0.4, 0.3, 0.2) if is_dark else Color(0.9, 0.9, 0.9)
+
+			var tileName := "%s%d" % [FILES[f], RANKS[r]]
+			tile.tile_name = tileName
+
+			tile.position = Vector2(f * TILE_SIZE, r * TILE_SIZE)
+			tile.size = Vector2(TILE_SIZE, TILE_SIZE)
+
+			tile_container.add_child(tile)
+			tiles[tileName] = tile
+
+
+func _on_board_changed(new_board: Dictionary):
+	_redraw_pieces(new_board)
+
+
+func _redraw_pieces(board: Dictionary):
+	for c in piece_container.get_children():
+		c.queue_free()
+
+	# Place new pieces
+	for square in board.keys():
+		var piece_name = board[square]
+		if piece_name == "" or piece_name == null:
+			continue
+
+		var sprite := TextureRect.new()
+		sprite.texture = _get_piece_texture(piece_name)
+		sprite.position = tiles[square].position # + Vector2(TILE_SIZE/2, TILE_SIZE/2)
+		# Set the anchor to middle
+		
+		sprite.set_stretch_mode(TextureRect.STRETCH_KEEP_CENTERED)
+		sprite.set_size(Vector2(TILE_SIZE, TILE_SIZE))
+#		sprite.set_anchors_preset(Control.LayoutPreset.PRESET_CENTER)
+
+		piece_container.add_child(sprite)
+
+
+
+
+func _get_piece_texture(pieceName: String) -> Texture2D:
+	# Name is uppercase ("WHITE_PAWN")
+	return PIECE_TEXTURES.get(pieceName, null)
