@@ -1,13 +1,15 @@
 extends Node2D
+class_name Board
 
 @onready var tile_container: Node2D = $Tiles
 @onready var piece_container: Node2D = $Pieces
 
 const TILE_SIZE := 80
-const TILE_SCENE := preload("res://BoardTile.tscn")
-const FILES := ["a","b","c","d","e","f","g","h"]
+const TILE_SCENE := preload("res://scenes/BoardTile.tscn")
+const PIECE_SCENE := preload("res://scenes/Piece.tscn")
+const FILES := ["A","B","C","D","E","F","G","H"]
 const RANKS := [8,7,6,5,4,3,2,1]
-var tiles := {}
+var tiles: Dictionary[String, BoardTile] = {}
 
 var PIECE_TEXTURES := {
 	"WHITE_PAWN": preload("res://sprites/pieces/white_pawn.svg"),
@@ -26,6 +28,7 @@ var PIECE_TEXTURES := {
 }
 
 func _ready():
+	add_to_group("board_root")
 	_generate_board()
 	call_deferred("_connect_store_signal")
 
@@ -58,20 +61,18 @@ func _redraw_pieces(board: Dictionary):
 	for c in piece_container.get_children():
 		c.queue_free()
 
-	# Place new pieces
 	for square in board.keys():
 		var piece_name = board[square]
-		if piece_name == "" or piece_name == null:
+		if piece_name == "" or piece_name == null or piece_name == 'NONE':
 			continue
 
-		var sprite := TextureRect.new()
+		var sprite: TextureRect = PIECE_SCENE.instantiate()
+		sprite.piece_name = piece_name
 		sprite.texture = _get_piece_texture(piece_name)
-		sprite.position = tiles[square].position # + Vector2(TILE_SIZE/2, TILE_SIZE/2)
-		# Set the anchor to middle
+		sprite.position = tiles[square].position
 		
 		sprite.set_stretch_mode(TextureRect.STRETCH_KEEP_CENTERED)
 		sprite.set_size(Vector2(TILE_SIZE, TILE_SIZE))
-#		sprite.set_anchors_preset(Control.LayoutPreset.PRESET_CENTER)
 
 		piece_container.add_child(sprite)
 
@@ -81,3 +82,16 @@ func _redraw_pieces(board: Dictionary):
 func _get_piece_texture(pieceName: String) -> Texture2D:
 	# Name is uppercase ("WHITE_PAWN")
 	return PIECE_TEXTURES.get(pieceName, null)
+
+
+func get_square_from_pos(event_global_position: Vector2) -> String:
+	for tile_key in tiles:
+		var tile := tiles[tile_key]
+		if tile.get_global_rect().has_point(event_global_position):
+			return tile.tile_name
+	return ""
+	
+func get_tile_position(square: String) -> Vector2:
+	if tiles.has(square):
+		return tiles[square].global_position #+ Vector2(TILE_SIZE/2, TILE_SIZE/2)
+	return Vector2.ZERO

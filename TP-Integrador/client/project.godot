@@ -19,3 +19,8 @@ config/icon="res://icon.svg"
 
 Networking="*res://scripts/Networking.gd"
 Store="*res://scripts/Store.gd"
+
+[display]
+
+window/size/viewport_width=640
+window/size/viewport_height=640

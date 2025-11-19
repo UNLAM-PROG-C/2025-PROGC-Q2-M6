@@ -54,7 +54,7 @@ data class MakeMovePayload(
 
     private fun isValidSquare(s: String): Boolean =
         s.length == 2 &&
-                s[0] in 'a'..'h' &&
+                s[0] in 'A'..'H' &&
                 s[1] in '1'..'8'
 }
 

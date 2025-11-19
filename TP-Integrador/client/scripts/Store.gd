@@ -6,6 +6,7 @@ signal allowed_moves_changed(highlights)
 signal turn_changed(player_id)
 signal game_over(winner_color)
 signal my_color_changed(color)
+signal last_move_changed(last_move)
 
 var game_id: String
 var board: Dictionary = {}
@@ -14,6 +15,7 @@ var player_turn: String = ""
 var game_is_over: bool = false
 var winner_color: Variant = ""
 var my_color: String = ""
+var last_move: Dictionary = {}
 
 func clear():
 	game_id = ""
@@ -31,6 +33,7 @@ func apply_state(payload: Dictionary):
 	player_turn = payload.playerTurn
 	game_is_over = payload.gameOver
 	winner_color = payload.get("winner")
+	last_move = payload.get("lastMove", {})
 
 	board = _array_to_map(payload.boardState)
 
@@ -46,6 +49,7 @@ func apply_state(payload: Dictionary):
 	emit_signal("allowed_moves_changed", _highlight_tiles(allowed_moves))
 	emit_signal("turn_changed", player_turn)
 	emit_signal("state_changed")
+	emit_signal("last_move_changed", last_move)
 
 	if game_is_over:
 		emit_signal("game_over", winner_color)
@@ -53,8 +57,8 @@ func apply_state(payload: Dictionary):
 
 func _array_to_map(arr: Array) -> Dictionary:
 	var map := {}
-	var files: Array[Variant] = ["a","b","c","d","e","f","g","h"]
-	var ranks: Array[Variant] = [8,7,6,5,4,3,2,1]
+	var files: Array[Variant] = ["A","B","C","D","E","F","G","H"]
+	var ranks: Array[Variant] = [1,2,3,4,5,6,7,8]
 	var i: int = 0
 
 	for r in ranks:
@@ -73,3 +77,13 @@ func _highlight_tiles(moves: Array) -> Array:
 		if m.has("to"):
 			result.append(m.to)
 	return result
+
+func try_move(from: String, to: String) -> bool:
+	var from_up := from.to_upper()
+	var to_up := to.to_upper()
+	for m in allowed_moves:
+		var mf := String(m.get("from", "")).to_upper()
+		var mt := String(m.get("to", "")).to_upper()
+		if mf == from_up and mt == to_up:
+			return true
+	return false

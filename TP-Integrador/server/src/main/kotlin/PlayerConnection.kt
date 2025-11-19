@@ -37,9 +37,11 @@ class PlayerConnection {
 
     @OnWebSocketMessage
     fun onMessage(session: Session, message: String) {
+        println("Received message from $id: $message")
         val data = try {
             mapper.readValue(message, WsMessage::class.java)
         } catch (e: Exception) {
+            println("Failed to parse message: ${e.message}")
             session.remote.sendString("""{"type": "error", "payload": "Invalid message format"}""")
             return
         }
