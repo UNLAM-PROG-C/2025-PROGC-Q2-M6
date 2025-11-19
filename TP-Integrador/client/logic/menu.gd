@@ -29,13 +29,6 @@ func _ready():
 	Networking.connect("joined_game", Callable(self, "_on_joined_game"))
 	Networking.connect("game_state", Callable(self, "_on_game_state"))
 	Networking.connect("error_received", Callable(self, "_on_error"))
-	
-	Networking.connect("connected", Callable(self, "_on_connected"))
-	Networking.connect("connection_failed", Callable(self, "_on_connection_failed"))
-	Networking.connect("game_created", Callable(self, "_on_game_created"))
-	Networking.connect("joined_game", Callable(self, "_on_joined_game"))
-	Networking.connect("game_state", Callable(self, "_on_game_state"))
-	Networking.connect("error_received", Callable(self, "_on_error"))
 
 func _on_ConnectButton_pressed():
 	var url = server_url.text.trim_suffix(" ")
