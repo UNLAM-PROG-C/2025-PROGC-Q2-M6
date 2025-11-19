@@ -73,3 +73,13 @@ func _highlight_tiles(moves: Array) -> Array:
 		if m.has("to"):
 			result.append(m.to)
 	return result
+
+func try_move(from: String, to: String) -> bool:
+	var from_up := from.to_upper()
+	var to_up := to.to_upper()
+	for m in allowed_moves:
+		var mf := String(m.get("from", "")).to_upper()
+		var mt := String(m.get("to", "")).to_upper()
+		if mf == from_up and mt == to_up:
+			return true
+	return false
