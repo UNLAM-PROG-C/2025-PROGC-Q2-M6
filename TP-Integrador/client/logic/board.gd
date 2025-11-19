@@ -58,20 +58,18 @@ func _redraw_pieces(board: Dictionary):
 	for c in piece_container.get_children():
 		c.queue_free()
 
-	# Place new pieces
 	for square in board.keys():
 		var piece_name = board[square]
-		if piece_name == "" or piece_name == null:
+		if piece_name == "" or piece_name == null or piece_name == 'NONE':
 			continue
 
-		var sprite := TextureRect.new()
+		var sprite: TextureRect = PIECE_SCENE.instantiate()
+		sprite.piece_name = piece_name
 		sprite.texture = _get_piece_texture(piece_name)
-		sprite.position = tiles[square].position # + Vector2(TILE_SIZE/2, TILE_SIZE/2)
-		# Set the anchor to middle
+		sprite.position = tiles[square].position
 		
 		sprite.set_stretch_mode(TextureRect.STRETCH_KEEP_CENTERED)
 		sprite.set_size(Vector2(TILE_SIZE, TILE_SIZE))
-#		sprite.set_anchors_preset(Control.LayoutPreset.PRESET_CENTER)
 
 		piece_container.add_child(sprite)
 
