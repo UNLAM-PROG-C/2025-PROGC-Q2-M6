@@ -1,4 +1,5 @@
 extends Node2D
+class_name Board
 
 @onready var tile_container: Node2D = $Tiles
 @onready var piece_container: Node2D = $Pieces
@@ -80,3 +81,16 @@ func _redraw_pieces(board: Dictionary):
 func _get_piece_texture(pieceName: String) -> Texture2D:
 	# Name is uppercase ("WHITE_PAWN")
 	return PIECE_TEXTURES.get(pieceName, null)
+
+
+func get_square_from_pos(event_global_position: Vector2) -> String:
+	for tile_key in tiles:
+		var tile := tiles[tile_key]
+		if tile.get_global_rect().has_point(event_global_position):
+			return tile.tile_name
+	return ""
+	
+func get_tile_position(square: String) -> Vector2:
+	if tiles.has(square):
+		return tiles[square].global_position #+ Vector2(TILE_SIZE/2, TILE_SIZE/2)
+	return Vector2.ZERO
