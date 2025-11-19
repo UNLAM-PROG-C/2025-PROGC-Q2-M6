@@ -55,6 +55,7 @@ func _array_to_map(arr: Array) -> Dictionary:
 	var map := {}
 	var files: Array[Variant] = ["a","b","c","d","e","f","g","h"]
 	var ranks: Array[Variant] = [8,7,6,5,4,3,2,1]
+	var files: Array[Variant] = ["A","B","C","D","E","F","G","H"]
 	var i: int = 0
 
 	for r in ranks:

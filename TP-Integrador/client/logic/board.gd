@@ -6,8 +6,9 @@ extends Node2D
 const TILE_SIZE := 80
 const TILE_SCENE := preload("res://BoardTile.tscn")
 const FILES := ["a","b","c","d","e","f","g","h"]
+const FILES := ["A","B","C","D","E","F","G","H"]
 const RANKS := [8,7,6,5,4,3,2,1]
-var tiles := {}
+var tiles: Dictionary[String, BoardTile] = {}
 
 var PIECE_TEXTURES := {
 	"WHITE_PAWN": preload("res://sprites/pieces/white_pawn.svg"),

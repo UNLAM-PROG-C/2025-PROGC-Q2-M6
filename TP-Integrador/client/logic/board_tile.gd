@@ -1,4 +1,5 @@
 extends ColorRect
+class_name BoardTile
 
 @export var tile_name: String = ""
 @export var base_color: Color
