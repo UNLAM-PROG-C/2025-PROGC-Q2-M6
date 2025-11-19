@@ -1,5 +1,6 @@
 plugins {
   kotlin("jvm") version "2.2.0"
+  application
 }
 
 group = "com.example"
@@ -32,4 +33,8 @@ dependencies {
 
 tasks.test {
   useJUnitPlatform()
+}
+
+application {
+    mainClass.set("MainKt")
 }
