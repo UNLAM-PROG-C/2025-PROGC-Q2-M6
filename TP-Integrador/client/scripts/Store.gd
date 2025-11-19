@@ -6,6 +6,7 @@ signal allowed_moves_changed(highlights)
 signal turn_changed(player_id)
 signal game_over(winner_color)
 signal my_color_changed(color)
+signal last_move_changed(last_move)
 
 var game_id: String
 var board: Dictionary = {}
@@ -14,6 +15,7 @@ var player_turn: String = ""
 var game_is_over: bool = false
 var winner_color: Variant = ""
 var my_color: String = ""
+var last_move: Dictionary = {}
 
 func clear():
 	game_id = ""
@@ -31,6 +33,7 @@ func apply_state(payload: Dictionary):
 	player_turn = payload.playerTurn
 	game_is_over = payload.gameOver
 	winner_color = payload.get("winner")
+	last_move = payload.get("lastMove", {})
 
 	board = _array_to_map(payload.boardState)
 
@@ -46,6 +49,7 @@ func apply_state(payload: Dictionary):
 	emit_signal("allowed_moves_changed", _highlight_tiles(allowed_moves))
 	emit_signal("turn_changed", player_turn)
 	emit_signal("state_changed")
+	emit_signal("last_move_changed", last_move)
 
 	if game_is_over:
 		emit_signal("game_over", winner_color)
