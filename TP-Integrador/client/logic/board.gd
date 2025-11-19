@@ -5,8 +5,8 @@ class_name Board
 @onready var piece_container: Node2D = $Pieces
 
 const TILE_SIZE := 80
-const TILE_SCENE := preload("res://BoardTile.tscn")
-const FILES := ["a","b","c","d","e","f","g","h"]
+const TILE_SCENE := preload("res://scenes/BoardTile.tscn")
+const PIECE_SCENE := preload("res://scenes/Piece.tscn")
 const FILES := ["A","B","C","D","E","F","G","H"]
 const RANKS := [8,7,6,5,4,3,2,1]
 var tiles: Dictionary[String, BoardTile] = {}
@@ -28,6 +28,7 @@ var PIECE_TEXTURES := {
 }
 
 func _ready():
+	add_to_group("board_root")
 	_generate_board()
 	call_deferred("_connect_store_signal")
 
