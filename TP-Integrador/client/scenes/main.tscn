@@ -1,8 +1,10 @@
-[gd_scene load_steps=4 format=3 uid="uid://b57qqm1eu4yv2"]
+[gd_scene load_steps=6 format=3 uid="uid://b57qqm1eu4yv2"]
 
 [ext_resource type="Script" uid="uid://dnou7qehtq4sb" path="res://logic/menu.gd" id="1_0xm2m"]
 [ext_resource type="Script" uid="uid://cbc42k1vud14e" path="res://logic/main.gd" id="1_h2yge"]
 [ext_resource type="Script" uid="uid://blbpyrk76vov0" path="res://logic/board.gd" id="1_ig7tw"]
+[ext_resource type="Script" uid="uid://dp882yo0tkfyd" path="res://logic/game_list_panel.gd" id="3_jyhfs"]
+[ext_resource type="PackedScene" uid="uid://bdwql4l00aknt" path="res://scenes/GameRow.tscn" id="4_tbgi4"]
 
 [node name="Main" type="Node"]
 script = ExtResource("1_h2yge")
@@ -25,6 +27,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_constants/separation = 10
 alignment = 1
 
 [node name="ServerURL" type="LineEdit" parent="Menu/ConnectPanel"]
@@ -44,13 +47,13 @@ layout_mode = 2
 text = "Connect"
 
 [node name="LobbyPanel" type="VBoxContainer" parent="Menu"]
-visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_constants/separation = 10
 alignment = 1
 
 [node name="CreateGameBtn" type="Button" parent="Menu/LobbyPanel"]
@@ -66,14 +69,71 @@ text = "Join game"
 layout_mode = 2
 text = "Exit"
 
-[node name="RefreshBtn" type="Button" parent="Menu/LobbyPanel"]
-layout_mode = 2
-
-[node name="GameList" type="ItemList" parent="Menu/LobbyPanel"]
-layout_mode = 2
-
 [node name="StatusLabel" type="Label" parent="Menu/LobbyPanel"]
 layout_mode = 2
+
+[node name="CancelBtn" type="Button" parent="Menu/LobbyPanel"]
+layout_mode = 2
+size_flags_horizontal = 8
+text = "Cancel"
+
+[node name="GameListPanel" type="Panel" parent="Menu"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("3_jyhfs")
+game_row_scene = ExtResource("4_tbgi4")
+
+[node name="MarginContainer" type="MarginContainer" parent="Menu/GameListPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Menu/GameListPanel/MarginContainer"]
+custom_minimum_size = Vector2(380, 300)
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Title" type="Label" parent="Menu/GameListPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Selecciona la partida:"
+
+[node name="ScrollContainer" type="ScrollContainer" parent="Menu/GameListPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="RowsContainer" type="VBoxContainer" parent="Menu/GameListPanel/MarginContainer/VBoxContainer/ScrollContainer"]
+custom_minimum_size = Vector2(200, 80)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Menu/GameListPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Back" type="Button" parent="Menu/GameListPanel/MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 6
+size_flags_vertical = 4
+text = "Back"
+
+[node name="Refresh" type="Button" parent="Menu/GameListPanel/MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 6
+size_flags_vertical = 4
+text = "Refresh"
 
 [node name="Game" type="Node2D" parent="."]
 visible = false

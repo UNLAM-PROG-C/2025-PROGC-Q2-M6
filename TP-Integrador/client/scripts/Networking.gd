@@ -1,4 +1,4 @@
-﻿extends Node
+extends Node
 
 ## Signals to notify UI, Store, Game, etc
 signal connected(player_id)
@@ -9,6 +9,7 @@ signal joined_game(game_id)
 signal game_state(payload)
 signal move_made(from, to)
 signal error_received(message)
+signal games_list(payload)
 
 var peer: WebSocketPeer
 var url: String = ""
@@ -98,6 +99,8 @@ func _on_message(text: String) -> void:
 		"left_game":
 			# No payload
 			emit_signal("disconnected")
+		"games_list":
+			emit_signal("games_list", payload)
 
 		_:
 			print("Unknown WS type: ", text)
@@ -128,6 +131,11 @@ func send_make_move(from_square: String, to_square: String):
 func send_leave_game():
 	_send({"type": "leave_game"})
 
+func send_list_games():
+	_send({
+		"type": "list_games"
+	})
+	
 func _send(dict: Dictionary):
 	if peer != null and peer.get_ready_state() == WebSocketPeer.STATE_OPEN:
 		peer.send_text(JSON.stringify(dict))
