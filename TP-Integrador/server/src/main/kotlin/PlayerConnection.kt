@@ -53,6 +53,7 @@ class PlayerConnection {
             is JoinGameMessage -> handleJoinGame(data)
             is MakeMoveMessage -> handleMakeMove(data)
             is LeaveGameMessage -> handleLeaveGame()
+            is ListGamesMessage -> handleListGames()
             else -> {
                 session.remote.sendString("""{"type": "error", "payload": "Unknown message type"}""")
             }
@@ -130,4 +131,23 @@ class PlayerConnection {
         }
         session?.remote?.sendString("""{"type": "move_made", "payload": {"from": "$from", "to": "$to"}}""")
     }
+
+    fun handleListGames() {
+    val gamesInfo = GameStore.games.values.map { game ->
+        mapOf(
+            "id" to game.id,
+            "players" to game.players.size,
+            "spectators" to game.spectators.size
+        )
+    }
+
+    val response = mapOf(
+        "type" to "games_list",
+        "payload" to mapOf("games" to gamesInfo)
+    )
+
+    session?.remote?.sendString(
+        mapper.writeValueAsString(response)
+    )
+}
 }

@@ -66,6 +66,14 @@ data class LeaveGameMessage(
     override val type: String,
 ) : WsMessage()
 
+/**
+ * list_games
+ */
+data class ListGamesMessage(
+    override val type: String
+) : WsMessage()
+
+
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,
     include = JsonTypeInfo.As.PROPERTY,
@@ -77,5 +85,7 @@ data class LeaveGameMessage(
     JsonSubTypes.Type(CreateGameMessage::class, name = "create_game"),
     JsonSubTypes.Type(JoinGameMessage::class, name = "join_game"),
     JsonSubTypes.Type(LeaveGameMessage::class, name = "leave_game"),
+    JsonSubTypes.Type(ListGamesMessage::class, name = "list_games")
 )
 abstract class WsMessageMixin
+
