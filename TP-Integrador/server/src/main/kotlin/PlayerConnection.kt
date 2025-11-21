@@ -123,9 +123,9 @@ class PlayerConnection {
         val from = message.payload.from
         val to = message.payload.to
         val move = SimpleMove(from, to)
-        gameHandler?.handleMove(move)?.let {
+        gameHandler?.handleMove(move, id)?.let {
             if (!it) {
-                session?.remote?.sendString("""{"type": "error", "payload": "Illegal move"}""")
+                session?.remote?.sendString("""{"type": "error", "payload": "Illegal move or not your turn"}""")
                 return
             }
         }
