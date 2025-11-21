@@ -79,6 +79,10 @@ func _highlight_tiles(moves: Array) -> Array:
 	return result
 
 func try_move(from: String, to: String) -> bool:
+	if player_turn != Networking.player_id:
+		print("Not your turn!")
+		return false
+	
 	var from_up := from.to_upper()
 	var to_up := to.to_upper()
 	for m in allowed_moves:
@@ -87,3 +91,6 @@ func try_move(from: String, to: String) -> bool:
 		if mf == from_up and mt == to_up:
 			return true
 	return false
+
+func is_my_turn() -> bool:
+	return player_turn == Networking.player_id

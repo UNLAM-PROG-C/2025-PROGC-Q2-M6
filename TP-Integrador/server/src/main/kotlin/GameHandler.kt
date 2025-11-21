@@ -30,7 +30,12 @@ class GameHandler {
         broadcastState()
     }
 
-    fun handleMove(simpleMove: SimpleMove): Boolean {
+    fun handleMove(simpleMove: SimpleMove, playerId: String): Boolean {
+        val currentPlayer = players.find { it.id == playerId }
+        if (currentPlayer == null || currentPlayer.color != board.sideToMove.toString()) {
+            return false
+        }
+
         val promotion = getPromotionPiece(simpleMove)
         val moveToMake = simpleMove.toMove(promotion)
 

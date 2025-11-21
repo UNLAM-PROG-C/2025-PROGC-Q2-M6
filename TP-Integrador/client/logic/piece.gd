@@ -21,6 +21,14 @@ func _gui_input(event: InputEvent) -> void:
 		_on_drag_motion(event as InputEventMouseMotion)
 		
 func _on_drag_start(event: InputEventMouseButton):
+	if not Store.is_my_turn():
+		print("Cannot move: not your turn")
+		return
+	
+	if Store.my_color != "" and not piece_name.begins_with(Store.my_color):
+		print("Cannot move: opponent's piece")
+		return
+	
 	dragging = true
 	original_position = global_position
 	original_square = board.get_square_from_pos(global_position)
