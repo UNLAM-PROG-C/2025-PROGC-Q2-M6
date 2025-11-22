@@ -97,33 +97,55 @@ class GameHandler {
     // Handle player leaving the game
     fun handlePlayerLeave(playerId: String) {
         players.removeIf { it.id == playerId }
-        // Notify remaining player about the game over due to player leaving
+        
+        // Notificar al resto (jugadores restantes + espectadores)
         if (players.size == 1) {
             val remaining = players.first()
-            val msg = """
-            {   
-                "type": "game_over", 
-                "payload": {
-                "winner": "${remaining.color}",
-                "reason": "PLAYER_LEFT"
-                }
+            val gameOverMsg = mapOf(
+                "type" to "opponent_left",
+                "payload" to mapOf("playerId" to playerId)
+            )
+            val gameOverJson = try {
+                mapper.writeValueAsString(gameOverMsg)
+            } catch (e: Exception) {
+                println("Failed to build game_over message: ${e.message}")
+                null
             }
-            """.trimIndent()
-
-            // send to all sessions (players + spectators)
-            val allSessions = players.map { it.session } + spectators.map { it.session }
-            allSessions
-                .filter { it.isOpen } 
-                .forEach { session ->
-                    try {
-                        session.remote.sendString(msg)
-                    } catch (_: Exception) { }
-                }        
-            return
+            //
+            gameOverJson?.let {
+                try { remaining.session.remote.sendString(it) } catch (_: Exception) {}
+            }
         }
-        // Remove the game from the store if no players and spectators are left
+
+        // --- Mensaje para los espectadores ---
+        val spectatorMsg = mapOf(
+            "type" to "player_left",
+            "payload" to mapOf("playerId" to playerId)
+        )
+        val spectatorJson = try {
+            mapper.writeValueAsString(spectatorMsg)
+        } catch (e: Exception) {
+            println("Failed to build spectator message: ${e.message}")
+            null
+        }
+
+        spectatorJson?.let {
+            spectators.mapNotNull { it.session }
+                .filter { it.isOpen }
+                .forEach { s ->
+                    try { s.remote.sendString(it) } catch (_: Exception) {}
+                }
+        }
+        // Si no quedan ni jugadores ni espectadores, eliminar la partida del store
         if (players.isEmpty() && spectators.isEmpty()) {
-            GameStore.games.remove(id)
+            try {
+                GameStore.games.remove(id) 
+            } catch (e: Exception) {
+                println("Failed to remove game from store: ${e.message}")
+            }
+
+        }
+        return
     }
 
 

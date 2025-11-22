@@ -6,7 +6,7 @@ class_name Board
 @onready var exit_button: Button = $ExitBtn
 @onready var exit_dialog: ConfirmationDialog = $ExitConfirmDialog
 
-signal lobby_menu_requested
+signal leave_game
 
 const TILE_SIZE := 80
 const TILE_SCENE := preload("res://scenes/BoardTile.tscn")
@@ -106,4 +106,4 @@ func _on_exit_button_pressed():
 
 
 func _on_exit_confirm_dialog_confirmed() -> void:
-	emit_signal("lobby_menu_requested")
+	emit_signal("leave_game")

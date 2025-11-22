@@ -1,6 +1,7 @@
 extends Control
 
 signal game_started
+signal back_to_lobby
 
 @onready var connect_panel: VBoxContainer = $ConnectPanel
 @onready var server_url: LineEdit = $ConnectPanel/ServerURL
@@ -14,6 +15,8 @@ signal game_started
 
 @onready var status_label: Label = $LobbyPanel/StatusLabel
 @onready var game_list_panel: Control = $GameListPanel
+
+
 
 func _ready():
 	lobby_panel.visible = false
@@ -37,6 +40,7 @@ func _ready():
 	Networking.connect("game_state", Callable(self, "_on_game_state"))
 	Networking.connect("error_received", Callable(self, "_on_error"))
 	Networking.connect("games_list", Callable(self, "_on_games_list"))
+	Networking.connect("left_game", Callable(self, "_on_left_game"))
 	
 func _on_ConnectButton_pressed():
 	var url = server_url.text.trim_suffix(" ")
@@ -56,7 +60,6 @@ func _on_ConnectButton_pressed():
 
 func _on_connected(player_id):
 	status_label.text = "Connected as %s" % player_id
-
 	connect_panel.visible = false
 	lobby_panel.visible = true
 
@@ -76,11 +79,9 @@ func _on_CreateButton_pressed():
 
 func _on_game_created(game_id):
 	status_label.text = "Game created.\nWaiting for opponent...\nGame ID: %s" % game_id
-	
 	# Deshabilitar botón de crear/join
 	create_button.disabled = true
 	join_button.disabled = true
-	
 	#cancel visible 
 	cancel_button.visible = true
 	
@@ -138,23 +139,22 @@ func _on_back_from_list():
 
 
 func _on_cancel_button_pressed():
+	Networking.send_leave_game()
+	
+	
+func _on_left_game():
+	print("aqui")
+	emit_signal("back_to_lobby")
 	create_button.disabled = false
 	join_button.disabled = false
 	cancel_button.visible = false
-	# Volver a la vista de lobby
 	lobby_panel.visible = true
-	game_list_panel.visible = false
 	status_label.text = ""
-#
+#	
 # --- ERRORS ---
 #
-func return_to_lobby():
-	connect_panel.visible = false
-	lobby_panel.visible = true
-	game_list_panel.visible = false
-	create_button.disabled = false
-	join_button.disabled = false
-	status_label.text = ""
 	
 func _on_error(msg):
 	status_label.text = "Error: " + str(msg)
+	
+	
