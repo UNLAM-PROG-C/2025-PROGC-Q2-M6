@@ -94,6 +94,39 @@ class GameHandler {
         return mapper.writeValueAsString(stateMessage)
     }
 
+    // Handle player leaving the game
+    fun handlePlayerLeave(playerId: String) {
+        players.removeIf { it.id == playerId }
+        // Notify remaining player about the game over due to player leaving
+        if (players.size == 1) {
+            val remaining = players.first()
+            val msg = """
+            {   
+                "type": "game_over", 
+                "payload": {
+                "winner": "${remaining.color}",
+                "reason": "PLAYER_LEFT"
+                }
+            }
+            """.trimIndent()
+
+            // send to all sessions (players + spectators)
+            val allSessions = players.map { it.session } + spectators.map { it.session }
+            allSessions
+                .filter { it.isOpen } 
+                .forEach { session ->
+                    try {
+                        session.remote.sendString(msg)
+                    } catch (_: Exception) { }
+                }        
+            return
+        }
+        // Remove the game from the store if no players and spectators are left
+        if (players.isEmpty() && spectators.isEmpty()) {
+            GameStore.games.remove(id)
+    }
+
+
     private fun broadcastState() {
         val stateMessage = buildGameState()
         println("Broadcasting game state: $stateMessage")
