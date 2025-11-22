@@ -110,6 +110,8 @@ class PlayerConnection {
             session?.remote?.sendString("""{"type": "error", "payload": "Not in a game"}""")
             return
         }
+        println("Player $id left game ${gameHandler?.id}")
+        this.gameHandler?.handlePlayerLeave(id)
         this.isInGame = false
         this.gameHandler = null
         session?.remote?.sendString("""{"type": "left_game", "payload": {}}""")
