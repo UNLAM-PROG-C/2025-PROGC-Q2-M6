@@ -12,10 +12,8 @@ signal game_started
 @onready var join_button: Button = $LobbyPanel/JoinGameBtn
 @onready var cancel_button: Button = $LobbyPanel/CancelBtn
 
-
 @onready var status_label: Label = $LobbyPanel/StatusLabel
 @onready var game_list_panel: Control = $GameListPanel
-
 
 func _ready():
 	lobby_panel.visible = false
@@ -29,6 +27,7 @@ func _ready():
 	game_list_panel.connect("join_game_requested", Callable(self, "_on_game_selected"))
 	game_list_panel.connect("back_pressed", Callable(self, "_on_back_from_list"))
 	game_list_panel.connect("refresh_pressed", Callable(self, "_on_refresh_list"))
+	
 	
 	# --- Networking signals ---
 	Networking.connect("connected", Callable(self, "_on_connected"))
@@ -97,16 +96,10 @@ func _on_JoinButton_pressed():
 	Networking.send_list_games()
 
 
-	# Networking.send_join_game(dummy_id)
-
 
 func _on_refresh_list():
 	Networking.send_list_games()
 
-func _request_game_list():
-	# Your server doesn't have a "list_games" command yet
-	# You can add it OR skip this feature
-	status_label.text = "The server has no game-listing endpoint yet."
 
 func _on_games_list(payload):
 	var games = payload.get("games", [])
@@ -148,9 +141,6 @@ func _on_cancel_button_pressed():
 	create_button.disabled = false
 	join_button.disabled = false
 	cancel_button.visible = false
-	
-	# Informar al servidor que abandona la partida
-	#Networking.send_leave_game()
 	# Volver a la vista de lobby
 	lobby_panel.visible = true
 	game_list_panel.visible = false
@@ -158,6 +148,13 @@ func _on_cancel_button_pressed():
 #
 # --- ERRORS ---
 #
-
+func return_to_lobby():
+	connect_panel.visible = false
+	lobby_panel.visible = true
+	game_list_panel.visible = false
+	create_button.disabled = false
+	join_button.disabled = false
+	status_label.text = ""
+	
 func _on_error(msg):
 	status_label.text = "Error: " + str(msg)

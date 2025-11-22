@@ -3,6 +3,10 @@ class_name Board
 
 @onready var tile_container: Node2D = $Tiles
 @onready var piece_container: Node2D = $Pieces
+@onready var exit_button: Button = $ExitBtn
+@onready var exit_dialog: ConfirmationDialog = $ExitConfirmDialog
+
+signal lobby_menu_requested
 
 const TILE_SIZE := 80
 const TILE_SCENE := preload("res://scenes/BoardTile.tscn")
@@ -31,7 +35,8 @@ func _ready():
 	add_to_group("board_root")
 	_generate_board()
 	call_deferred("_connect_store_signal")
-
+	exit_button.connect("pressed", Callable(self, "_on_exit_button_pressed"))
+	
 func _connect_store_signal():
 	Store.connect("board_changed", Callable(self, "_on_board_changed"))
 
@@ -95,3 +100,10 @@ func get_tile_position(square: String) -> Vector2:
 	if tiles.has(square):
 		return tiles[square].global_position #+ Vector2(TILE_SIZE/2, TILE_SIZE/2)
 	return Vector2.ZERO
+
+func _on_exit_button_pressed():
+	exit_dialog.popup_centered()
+
+
+func _on_exit_confirm_dialog_confirmed() -> void:
+	emit_signal("lobby_menu_requested")
