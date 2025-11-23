@@ -1,4 +1,4 @@
-﻿extends Node
+extends Node
 
 signal state_changed
 signal board_changed(board)

@@ -11,6 +11,18 @@ class GameHandler {
     val players: MutableList<Player> = CopyOnWriteArrayList()
     val spectators: MutableList<Spectator> = CopyOnWriteArrayList()
     var lastMove: SimpleMove? = null;
+    var gameEnded: Boolean = false 
+    private set 
+
+    // timestamp de última actividad (join, move, mensaje relevante)
+    @Volatile
+    var lastActivityMillis: Long = System.currentTimeMillis()
+        private set
+
+    private fun touch() {
+        lastActivityMillis = System.currentTimeMillis()
+    }
+
 
     val mapper = jacksonObjectMapper()
 
@@ -19,6 +31,7 @@ class GameHandler {
             return false
         }
         players.add(player)
+        touch() // actualizar última actividad
         if (players.size == 2) {
             broadcastState()
         }
@@ -27,6 +40,7 @@ class GameHandler {
 
     fun handleSpectatorJoin(spectator: Spectator) {
         spectators.add(spectator)
+        touch() // actualizar última actividad
         broadcastState()
     }
 
@@ -45,6 +59,7 @@ class GameHandler {
 
         board.doMove(moveToMake)
         lastMove = simpleMove
+        touch() // actualizar última actividad
 
         broadcastState()
         return true;
@@ -61,15 +76,17 @@ class GameHandler {
             Piece.BLACK_PAWN if fullMove.to.rank.ordinal == 0 -> {
                 Piece.BLACK_QUEEN
             }
-
+            
             else -> {
                 Piece.NONE
             }
         }
+        
         return promotion
     }
 
     private fun buildGameState(): String {
+        val isOver = board.isMated || board.isDraw
         val payload = mutableMapOf(
             "gameId" to id,
             "boardState" to board.boardToArray(),
@@ -88,12 +105,74 @@ class GameHandler {
                 "to" to it.to
             )
         }
+
+        if (isOver) {
+            gameEnded = true
+        }
         val stateMessage = mapOf(
             "type" to "game_state",
             "payload" to payload
         )
         return mapper.writeValueAsString(stateMessage)
     }
+    
+    // Handle player leaving the game
+    fun handlePlayerLeave(playerId: String) {
+        if (gameEnded) {
+            return // No notificar si el juego ya terminó
+        }
+        // Eliminar jugador
+        players.removeIf { it.id == playerId } 
+        // Notificar al resto (jugadores restantes + espectadores)
+        if (players.size == 1) {
+            val remaining = players.first()
+            val opponentLeftMsg = mapOf(
+                "type" to "opponent_left",
+                "payload" to mapOf("playerId" to playerId)
+            )
+            val opponentLeftJson = try {
+                mapper.writeValueAsString(opponentLeftMsg)
+            } catch (e: Exception) {
+                println("Failed to build opponent_left message: ${e.message}")
+                null
+            }
+            
+            opponentLeftJson?.let {
+                try { remaining.session.remote.sendString(it) } catch (_: Exception) {}
+            }
+        }
+
+        // --- Mensaje para los espectadores ---
+        val spectatorMsg = mapOf(
+            "type" to "player_left",
+            "payload" to mapOf("playerId" to playerId)
+        )
+        val spectatorJson = try {
+            mapper.writeValueAsString(spectatorMsg)
+        } catch (e: Exception) {
+            println("Failed to build spectator message: ${e.message}")
+            null
+        }
+
+        spectatorJson?.let {
+            spectators.mapNotNull { it.session }
+                .filter { it.isOpen }
+                .forEach { s ->
+                    try { s.remote.sendString(it) } catch (_: Exception) {}
+                }
+        }
+        // Si no quedan ni jugadores ni espectadores, eliminar la partida del store
+        if (players.isEmpty() && spectators.isEmpty()) {
+            try {
+                GameStore.games.remove(id) 
+            } catch (e: Exception) {
+                println("Failed to remove game from store: ${e.message}")
+            }
+
+        }
+        return
+    }
+
 
     private fun broadcastState() {
         val stateMessage = buildGameState()

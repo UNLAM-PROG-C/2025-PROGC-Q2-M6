@@ -77,7 +77,6 @@ size_flags_horizontal = 8
 text = "Cancel"
 
 [node name="GameListPanel" type="Panel" parent="Menu"]
-visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -123,12 +122,14 @@ layout_mode = 2
 size_flags_vertical = 3
 
 [node name="Back" type="Button" parent="Menu/GameListPanel/MarginContainer/VBoxContainer/HBoxContainer"]
+custom_minimum_size = Vector2(80, 40)
 layout_mode = 2
 size_flags_horizontal = 6
 size_flags_vertical = 4
 text = "Back"
 
 [node name="Refresh" type="Button" parent="Menu/GameListPanel/MarginContainer/VBoxContainer/HBoxContainer"]
+custom_minimum_size = Vector2(80, 40)
 layout_mode = 2
 size_flags_horizontal = 6
 size_flags_vertical = 4
@@ -184,3 +185,6 @@ horizontal_alignment = 1
 layout_mode = 2
 size_flags_horizontal = 4
 text = "Back to Menu"
+
+[connection signal="confirmed" from="Game/Board/ExitConfirmDialog" to="Game/Board" method="_on_exit_confirm_dialog_confirmed"]
+[connection signal="confirmed" from="Game/Board/OpponentLeftDialog" to="Game/Board" method="_on_opponent_left_dialog_confirmed"]
