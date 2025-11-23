@@ -10,6 +10,8 @@ signal game_state(payload)
 signal move_made(from, to)
 signal error_received(message)
 signal games_list(payload)
+signal left_game()
+signal opponent_left()
 
 var peer: WebSocketPeer
 var url: String = ""
@@ -97,8 +99,10 @@ func _on_message(text: String) -> void:
 			emit_signal("game_state", payload)
 
 		"left_game":
-			# No payload
-			emit_signal("disconnected")
+			emit_signal("left_game")
+			
+		"opponent_left":
+			emit_signal("opponent_left")
 		"games_list":
 			emit_signal("games_list", payload)
 

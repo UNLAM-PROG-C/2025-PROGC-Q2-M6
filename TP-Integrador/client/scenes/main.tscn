@@ -78,7 +78,6 @@ size_flags_horizontal = 8
 text = "Cancel"
 
 [node name="GameListPanel" type="Panel" parent="Menu"]
-visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -124,19 +123,20 @@ layout_mode = 2
 size_flags_vertical = 3
 
 [node name="Back" type="Button" parent="Menu/GameListPanel/MarginContainer/VBoxContainer/HBoxContainer"]
+custom_minimum_size = Vector2(80, 40)
 layout_mode = 2
 size_flags_horizontal = 6
 size_flags_vertical = 4
 text = "Back"
 
 [node name="Refresh" type="Button" parent="Menu/GameListPanel/MarginContainer/VBoxContainer/HBoxContainer"]
+custom_minimum_size = Vector2(80, 40)
 layout_mode = 2
 size_flags_horizontal = 6
 size_flags_vertical = 4
 text = "Refresh"
 
 [node name="Game" type="Node2D" parent="."]
-visible = false
 
 [node name="Board" type="Node2D" parent="Game"]
 script = ExtResource("1_ig7tw")
@@ -144,6 +144,33 @@ script = ExtResource("1_ig7tw")
 [node name="Tiles" type="Node2D" parent="Game/Board"]
 
 [node name="Pieces" type="Node2D" parent="Game/Board"]
+
+[node name="ExitBtn" type="Button" parent="Game/Board"]
+anchors_preset = -1
+anchor_left = 7.825
+anchor_top = -0.05
+anchor_right = 7.825
+anchor_bottom = -0.05
+offset_left = 527.0
+offset_top = 8.0
+offset_right = 587.0
+offset_bottom = 36.0
+grow_horizontal = 0
+theme_override_font_sizes/font_size = 14
+text = "EXIT"
+metadata/_edit_use_anchors_ = true
+
+[node name="ExitConfirmDialog" type="ConfirmationDialog" parent="Game/Board"]
+oversampling_override = 1.0
+size = Vector2i(250, 100)
+dialog_text = "Are you sure you want to exit?"
+
+[node name="OpponentLeftDialog" type="AcceptDialog" parent="Game/Board"]
+oversampling_override = 1.0
+title = "Aviso"
+position = Vector2i(0, 36)
+size = Vector2i(278, 200)
+dialog_text = "El oponente abandono la partida. "
 
 [node name="GameOverLayer" type="CanvasLayer" parent="."]
 
@@ -194,3 +221,6 @@ horizontal_alignment = 1
 layout_mode = 2
 size_flags_horizontal = 4
 text = "Back to Menu"
+
+[connection signal="confirmed" from="Game/Board/ExitConfirmDialog" to="Game/Board" method="_on_exit_confirm_dialog_confirmed"]
+[connection signal="confirmed" from="Game/Board/OpponentLeftDialog" to="Game/Board" method="_on_opponent_left_dialog_confirmed"]

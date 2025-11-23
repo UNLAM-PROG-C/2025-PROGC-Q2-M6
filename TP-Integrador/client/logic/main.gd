@@ -11,13 +11,14 @@ func _ready():
 	game.visible = false
 	game_over_layer.visible = false
 	menu.connect("game_started", Callable(self, "_on_game_started"))
+	menu.connect("left_game_ack", Callable(self,"_on_back_to_menu"))
 	back_to_menu_btn.connect("pressed", Callable(self, "_on_back_to_menu"))
 	call_deferred("_connect_store_signals")
 
 func _connect_store_signals():
 	Store.connect("game_over", Callable(self, "_on_game_over"))
 	print("Connected to Store.game_over signal")
-
+	
 func _on_game_started():
 	menu.visible = false
 	game.visible = true
