@@ -37,7 +37,7 @@ func _ready():
 	_generate_board()
 	_redraw_pieces(Store.board)
 	_connect_store_signal()
-  exit_button.connect("pressed", Callable(self, "_on_exit_button_pressed"))
+	exit_button.connect("pressed", Callable(self, "_on_exit_button_pressed"))
 	Networking.connect("opponent_left", Callable(self, "_on_opponent_left"))
 
 func _connect_store_signal():
@@ -107,11 +107,11 @@ func _on_exit_button_pressed():
 
 
 func _on_exit_confirm_dialog_confirmed() -> void:
-	emit_signal("leave_game")
+	Networking.send_leave_game()
 
 #opponent_left signal received
 func _on_opponent_left():
 	opponent_left_dialog.popup_centered()
 
 func _on_opponent_left_dialog_confirmed() -> void:
-	emit_signal("leave_game")
+	Networking.send_leave_game()
