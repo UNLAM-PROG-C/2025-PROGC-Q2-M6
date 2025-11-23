@@ -28,8 +28,23 @@ fun main(args: Array<String>) {
 
     server.setHandler(handler)
 
+    // Hook para detener el cleaner al apagar el servidor
+    // Ejecuta siempre que la JVM se apaga
+    Runtime.getRuntime().addShutdownHook(Thread {
+        println("Shutdown hook: deteniendo cleaner y liberando recursos")
+        try {
+            GameStore.stopCleaner()
+        } catch (e: Exception) {
+            println("Error stopping cleaner: ${e.message}")
+        }
+    })
 
+    // Iniciar el servidor y el cleaner
     server.start()
     println("Server started on port $port")
+    GameStore.startCleaner()
+    
     server.join()
+    
+
 }
