@@ -30,32 +30,35 @@ var PIECE_TEXTURES := {
 func _ready():
 	add_to_group("board_root")
 	_generate_board()
-	call_deferred("_connect_store_signal")
+	_redraw_pieces(Store.board)
+	_connect_store_signal()
 
 func _connect_store_signal():
 	Store.connect("board_changed", Callable(self, "_on_board_changed"))
 
 func _generate_board():
-	for r in range(8):
-		for f in range(8):
+	var reversed := Store.my_color == "BLACK"
+	for rank in range(8):
+		for file in range(8):
+
 			var tile := TILE_SCENE.instantiate()
+			tile.size = Vector2(TILE_SIZE, TILE_SIZE)
 
-			var is_dark := ((r + f) % 2 == 1)
-			tile.base_color = Color(0.4, 0.3, 0.2) if is_dark else Color(0.9, 0.9, 0.9)
+			var file_idx := (7 - file) if reversed else file
+			var rank_idx := (7 - rank) if reversed else rank
 
-			var tileName := "%s%d" % [FILES[f], RANKS[r]]
+			tile.is_dark = ((rank_idx + file_idx) % 2 == 1)
+
+			var tileName := "%s%d" % [FILES[file_idx], RANKS[rank_idx]]
 			tile.tile_name = tileName
 
-			tile.position = Vector2(f * TILE_SIZE, r * TILE_SIZE)
-			tile.size = Vector2(TILE_SIZE, TILE_SIZE)
+			tile.position = Vector2(file * TILE_SIZE, rank * TILE_SIZE)
 
 			tile_container.add_child(tile)
 			tiles[tileName] = tile
 
-
 func _on_board_changed(new_board: Dictionary):
 	_redraw_pieces(new_board)
-
 
 func _redraw_pieces(board: Dictionary):
 	for c in piece_container.get_children():
@@ -70,19 +73,15 @@ func _redraw_pieces(board: Dictionary):
 		sprite.piece_name = piece_name
 		sprite.texture = _get_piece_texture(piece_name)
 		sprite.position = tiles[square].position
+		sprite.tile_position = square
 		
 		sprite.set_stretch_mode(TextureRect.STRETCH_KEEP_CENTERED)
 		sprite.set_size(Vector2(TILE_SIZE, TILE_SIZE))
 
 		piece_container.add_child(sprite)
 
-
-
-
 func _get_piece_texture(pieceName: String) -> Texture2D:
-	# Name is uppercase ("WHITE_PAWN")
 	return PIECE_TEXTURES.get(pieceName, null)
-
 
 func get_square_from_pos(event_global_position: Vector2) -> String:
 	for tile_key in tiles:

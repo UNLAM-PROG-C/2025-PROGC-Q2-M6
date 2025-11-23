@@ -1,6 +1,8 @@
 extends TextureRect
+class_name Piece
 
 @export var piece_name: String = ""
+@export var tile_position: String = ""
 
 var dragging := false
 var drag_offset := Vector2.ZERO
@@ -20,7 +22,7 @@ func _gui_input(event: InputEvent) -> void:
 	elif event is InputEventMouseMotion and dragging:
 		_on_drag_motion(event as InputEventMouseMotion)
 		
-func _on_drag_start(event: InputEventMouseButton):
+func _on_drag_start(event: InputEventMouseButton) -> void:
 	if not Store.is_my_turn():
 		print("Cannot move: not your turn")
 		return
