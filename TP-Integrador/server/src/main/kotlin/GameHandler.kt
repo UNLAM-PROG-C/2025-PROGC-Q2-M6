@@ -11,7 +11,9 @@ class GameHandler {
     val players: MutableList<Player> = CopyOnWriteArrayList()
     val spectators: MutableList<Spectator> = CopyOnWriteArrayList()
     var lastMove: SimpleMove? = null;
-    
+    var gameEnded: Boolean = false 
+    private set 
+
     // timestamp de última actividad (join, move, mensaje relevante)
     @Volatile
     var lastActivityMillis: Long = System.currentTimeMillis()
@@ -84,6 +86,7 @@ class GameHandler {
     }
 
     private fun buildGameState(): String {
+        val isOver = board.isMated || board.isDraw
         val payload = mutableMapOf(
             "gameId" to id,
             "boardState" to board.boardToArray(),
@@ -101,6 +104,10 @@ class GameHandler {
                 "to" to it.to
             )
         }
+
+        if (isOver) {
+            gameEnded = true
+        }
         val stateMessage = mapOf(
             "type" to "game_state",
             "payload" to payload
@@ -110,23 +117,26 @@ class GameHandler {
     
     // Handle player leaving the game
     fun handlePlayerLeave(playerId: String) {
-        players.removeIf { it.id == playerId }
-        
+        if (gameEnded) {
+            return // No notificar si el juego ya terminó
+        }
+        // Eliminar jugador
+        players.removeIf { it.id == playerId } 
         // Notificar al resto (jugadores restantes + espectadores)
         if (players.size == 1) {
             val remaining = players.first()
-            val gameOverMsg = mapOf(
+            val opponentLeftMsg = mapOf(
                 "type" to "opponent_left",
                 "payload" to mapOf("playerId" to playerId)
             )
-            val gameOverJson = try {
-                mapper.writeValueAsString(gameOverMsg)
+            val opponentLeftJson = try {
+                mapper.writeValueAsString(opponentLeftMsg)
             } catch (e: Exception) {
-                println("Failed to build game_over message: ${e.message}")
+                println("Failed to build opponent_left message: ${e.message}")
                 null
             }
-            //
-            gameOverJson?.let {
+            
+            opponentLeftJson?.let {
                 try { remaining.session.remote.sendString(it) } catch (_: Exception) {}
             }
         }
