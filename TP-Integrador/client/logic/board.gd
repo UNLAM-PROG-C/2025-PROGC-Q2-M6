@@ -5,6 +5,7 @@ class_name Board
 @onready var piece_container: Node2D = $Pieces
 @onready var exit_button: Button = $ExitBtn
 @onready var exit_dialog: ConfirmationDialog = $ExitConfirmDialog
+@onready var opponent_left_dialog: AcceptDialog = $OpponentLeftDialog
 
 signal leave_game
 
@@ -36,6 +37,7 @@ func _ready():
 	_generate_board()
 	call_deferred("_connect_store_signal")
 	exit_button.connect("pressed", Callable(self, "_on_exit_button_pressed"))
+	Networking.connect("opponent_left", Callable(self, "_on_opponent_left"))
 	
 func _connect_store_signal():
 	Store.connect("board_changed", Callable(self, "_on_board_changed"))
@@ -106,4 +108,11 @@ func _on_exit_button_pressed():
 
 
 func _on_exit_confirm_dialog_confirmed() -> void:
+	emit_signal("leave_game")
+
+#opponent_left signal received
+func _on_opponent_left():
+	opponent_left_dialog.popup_centered()
+
+func _on_opponent_left_dialog_confirmed() -> void:
 	emit_signal("leave_game")

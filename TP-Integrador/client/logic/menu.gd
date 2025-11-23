@@ -1,7 +1,6 @@
 extends Control
 
 signal game_started
-signal back_to_lobby
 
 @onready var connect_panel: VBoxContainer = $ConnectPanel
 @onready var server_url: LineEdit = $ConnectPanel/ServerURL
@@ -15,7 +14,8 @@ signal back_to_lobby
 
 @onready var status_label: Label = $LobbyPanel/StatusLabel
 @onready var game_list_panel: Control = $GameListPanel
-
+@onready var main: Node = get_node("/root/Main")
+@onready var board: Board = get_node("/root/Main/Game/Board")
 
 
 func _ready():
@@ -25,12 +25,12 @@ func _ready():
 	
 	connect_button.connect("pressed", Callable(self, "_on_ConnectButton_pressed"))
 	create_button.connect("pressed", Callable(self, "_on_CreateButton_pressed"))
-	cancel_button.connect("pressed", Callable(self,"_on_cancel_button_pressed"))
+	cancel_button.connect("pressed", Callable(self,"_on_leave_game"))
 	join_button.connect("pressed", Callable(self, "_on_JoinButton_pressed"))
 	game_list_panel.connect("join_game_requested", Callable(self, "_on_game_selected"))
 	game_list_panel.connect("back_pressed", Callable(self, "_on_back_from_list"))
 	game_list_panel.connect("refresh_pressed", Callable(self, "_on_refresh_list"))
-	
+	board.connect("leave_game", Callable(self, "_on_leave_game"))
 	
 	# --- Networking signals ---
 	Networking.connect("connected", Callable(self, "_on_connected"))
@@ -41,6 +41,7 @@ func _ready():
 	Networking.connect("error_received", Callable(self, "_on_error"))
 	Networking.connect("games_list", Callable(self, "_on_games_list"))
 	Networking.connect("left_game", Callable(self, "_on_left_game"))
+	
 	
 func _on_ConnectButton_pressed():
 	var url = server_url.text.trim_suffix(" ")
@@ -137,19 +138,20 @@ func _on_back_from_list():
 	game_list_panel.visible = false
 	lobby_panel.visible = true
 
-
-func _on_cancel_button_pressed():
+# leave game request due cancel or opponent left
+func _on_leave_game():
 	Networking.send_leave_game()
-	
-	
+
+# left game confirmation signal from server
 func _on_left_game():
-	print("aqui")
-	emit_signal("back_to_lobby")
+	main.back_to_loby()
 	create_button.disabled = false
 	join_button.disabled = false
 	cancel_button.visible = false
 	lobby_panel.visible = true
 	status_label.text = ""
+	
+	
 #	
 # --- ERRORS ---
 #
