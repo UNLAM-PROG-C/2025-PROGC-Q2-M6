@@ -1,0 +1,13 @@
+[gd_scene load_steps=2 format=3 uid="uid://bnsh4qis5cv18"]
+
+[ext_resource type="Script" uid="uid://blbpyrk76vov0" path="res://logic/board.gd" id="1_qbsmt"]
+
+[node name="Game" type="Node2D"]
+visible = false
+
+[node name="Board" type="Node2D" parent="."]
+script = ExtResource("1_qbsmt")
+
+[node name="Tiles" type="Node2D" parent="Board"]
+
+[node name="Pieces" type="Node2D" parent="Board"]
