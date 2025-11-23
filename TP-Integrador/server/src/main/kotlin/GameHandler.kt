@@ -11,6 +11,16 @@ class GameHandler {
     val players: MutableList<Player> = CopyOnWriteArrayList()
     val spectators: MutableList<Spectator> = CopyOnWriteArrayList()
     var lastMove: SimpleMove? = null;
+    
+    // timestamp de última actividad (join, move, mensaje relevante)
+    @Volatile
+    var lastActivityMillis: Long = System.currentTimeMillis()
+        private set
+
+    private fun touch() {
+        lastActivityMillis = System.currentTimeMillis()
+    }
+
 
     val mapper = jacksonObjectMapper()
 
@@ -19,6 +29,7 @@ class GameHandler {
             return false
         }
         players.add(player)
+        touch() // actualizar última actividad
         if (players.size == 2) {
             broadcastState()
         }
@@ -27,6 +38,7 @@ class GameHandler {
 
     fun handleSpectatorJoin(spectator: Spectator) {
         spectators.add(spectator)
+        touch() // actualizar última actividad
         broadcastState()
     }
 
@@ -45,6 +57,7 @@ class GameHandler {
 
         board.doMove(moveToMake)
         lastMove = simpleMove
+        touch() // actualizar última actividad
 
         broadcastState()
         return true;
@@ -61,11 +74,12 @@ class GameHandler {
             Piece.BLACK_PAWN if fullMove.to.rank.ordinal == 0 -> {
                 Piece.BLACK_QUEEN
             }
-
+            
             else -> {
                 Piece.NONE
             }
         }
+        
         return promotion
     }
 
@@ -93,7 +107,7 @@ class GameHandler {
         )
         return mapper.writeValueAsString(stateMessage)
     }
-
+    
     // Handle player leaving the game
     fun handlePlayerLeave(playerId: String) {
         players.removeIf { it.id == playerId }
