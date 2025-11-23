@@ -7,8 +7,6 @@ class_name Board
 @onready var exit_dialog: ConfirmationDialog = $ExitConfirmDialog
 @onready var opponent_left_dialog: AcceptDialog = $OpponentLeftDialog
 
-signal leave_game
-
 const TILE_SIZE := 80
 const TILE_SCENE := preload("res://scenes/BoardTile.tscn")
 const PIECE_SCENE := preload("res://scenes/Piece.tscn")
@@ -37,7 +35,7 @@ func _ready():
 	_generate_board()
 	_redraw_pieces(Store.board)
 	_connect_store_signal()
-  exit_button.connect("pressed", Callable(self, "_on_exit_button_pressed"))
+	exit_button.connect("pressed", Callable(self, "_on_exit_button_pressed"))
 	Networking.connect("opponent_left", Callable(self, "_on_opponent_left"))
 
 func _connect_store_signal():
@@ -107,11 +105,11 @@ func _on_exit_button_pressed():
 
 
 func _on_exit_confirm_dialog_confirmed() -> void:
-	emit_signal("leave_game")
+	Networking.send_leave_game()
 
 #opponent_left signal received
 func _on_opponent_left():
 	opponent_left_dialog.popup_centered()
 
 func _on_opponent_left_dialog_confirmed() -> void:
-	emit_signal("leave_game")
+	Networking.send_leave_game()

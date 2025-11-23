@@ -30,7 +30,6 @@ func _ready():
 	game_list_panel.connect("join_game_requested", Callable(self, "_on_game_selected"))
 	game_list_panel.connect("back_pressed", Callable(self, "_on_back_from_list"))
 	game_list_panel.connect("refresh_pressed", Callable(self, "_on_refresh_list"))
-	board.connect("leave_game", Callable(self, "_on_leave_game"))
 	
 	# --- Networking signals ---
 	Networking.connect("connected", Callable(self, "_on_connected"))
