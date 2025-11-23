@@ -80,6 +80,7 @@ class GameHandler {
                 board.isMated -> if (board.sideToMove.toString() == "WHITE") "BLACK" else "WHITE"
                 else -> null
             },
+            "players" to players.associate { p -> p.id to mapOf("color" to p.color) },
         )
         lastMove?.let {
             payload["lastMove"] = mapOf(
