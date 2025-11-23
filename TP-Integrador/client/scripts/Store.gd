@@ -52,6 +52,7 @@ func apply_state(payload: Dictionary):
 	emit_signal("last_move_changed", last_move)
 
 	if game_is_over:
+		print("Store: Game is over! Winner: ", winner_color)
 		emit_signal("game_over", winner_color)
 
 
