@@ -5,8 +5,8 @@ signal board_changed(board)
 signal allowed_moves_changed(highlights)
 signal turn_changed(player_id)
 signal game_over(winner_color)
-signal my_color_changed(color)
 signal last_move_changed(last_move)
+signal new_game_started()
 
 var game_id: String
 var board: Dictionary = {}
@@ -45,6 +45,10 @@ func apply_state(payload: Dictionary):
 	emit_signal("turn_changed", player_turn)
 	emit_signal("state_changed")
 	emit_signal("last_move_changed", last_move)
+	
+	
+	if last_move.is_empty():
+		emit_signal("new_game_started")
 
 	if game_is_over:
 		print("Store: Game is over! Winner: ", winner_color)
