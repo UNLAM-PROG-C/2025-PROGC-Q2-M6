@@ -1,6 +1,7 @@
 extends Control
 
 signal game_started
+signal left_game_ack
 
 @onready var connect_panel: VBoxContainer = $ConnectPanel
 @onready var server_url: LineEdit = $ConnectPanel/ServerURL
@@ -14,7 +15,6 @@ signal game_started
 
 @onready var status_label: Label = $LobbyPanel/StatusLabel
 @onready var game_list_panel: Control = $GameListPanel
-@onready var main: Node = get_node("/root/Main")
 @onready var board: Board = get_node("/root/Main/Game/Board")
 
 
@@ -42,7 +42,18 @@ func _ready():
 	Networking.connect("games_list", Callable(self, "_on_games_list"))
 	Networking.connect("left_game", Callable(self, "_on_left_game"))
 	
+func reset_to_lobby():
+	# Resetear todos los paneles y botones al estado inicial del lobby
+	connect_panel.visible = false
+	lobby_panel.visible = true
+	game_list_panel.visible = false
 	
+	create_button.disabled = false
+	join_button.disabled = false
+	cancel_button.visible = false
+	
+	status_label.text = ""
+
 func _on_ConnectButton_pressed():
 	var url = server_url.text.trim_suffix(" ")
 	var playerName = player_name.text.strip_edges()
@@ -142,16 +153,9 @@ func _on_back_from_list():
 func _on_leave_game():
 	Networking.send_leave_game()
 
-# left game confirmation signal from server
+# left game confirmation signal from server and send signal
 func _on_left_game():
-	main.back_to_loby()
-	create_button.disabled = false
-	join_button.disabled = false
-	cancel_button.visible = false
-	lobby_panel.visible = true
-	status_label.text = ""
-	
-	
+	emit_signal("left_game_ack")	
 #	
 # --- ERRORS ---
 #
