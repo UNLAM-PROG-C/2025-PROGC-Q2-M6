@@ -7,8 +7,6 @@ class_name Board
 @onready var exit_dialog: ConfirmationDialog = $ExitConfirmDialog
 @onready var opponent_left_dialog: AcceptDialog = $OpponentLeftDialog
 
-signal leave_game
-
 const TILE_SIZE := 80
 const TILE_SCENE := preload("res://scenes/BoardTile.tscn")
 const PIECE_SCENE := preload("res://scenes/Piece.tscn")
