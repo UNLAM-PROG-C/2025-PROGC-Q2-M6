@@ -2,11 +2,15 @@ extends ColorRect
 class_name BoardTile
 
 @export var tile_name: String = ""
-@export var base_color: Color
+@export var is_dark: bool
 var highlight: ColorRect
 
+func _draw() -> void:
+	draw_string(ThemeDB.fallback_font, Vector2(4, size.y - 4), tile_name,HORIZONTAL_ALIGNMENT_LEFT, -1, 8, Color.WHITE if is_dark else Color.BLACK)
+
 func _ready():
-	color = base_color
+	name = tile_name
+	color = Color(0.4, 0.3, 0.2) if is_dark else Color(0.9, 0.9, 0.9)
 	highlight = ColorRect.new()
 	highlight.color = Color(1.0, 0.85, 0.2, 0.6)
 	highlight.visible = false

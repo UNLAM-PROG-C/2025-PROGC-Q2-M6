@@ -1,25 +1,29 @@
 extends Node
 
 @onready var menu: Control = $Menu
-@onready var game: Node2D = $Game
-@onready var board: Node2D = $Game/Board
+var game: Node2D
+var board: Node2D
 @onready var game_over_layer: CanvasLayer = $GameOverLayer
 @onready var result_label: Label = $GameOverLayer/GameOverPanel/VBoxContainer/ResultLabel
 @onready var back_to_menu_btn: Button = $GameOverLayer/GameOverPanel/VBoxContainer/BackToMenuBtn
 
 func _ready():
-	game.visible = false
 	game_over_layer.visible = false
-	menu.connect("game_started", Callable(self, "_on_game_started"))
 	menu.connect("left_game_ack", Callable(self,"_on_back_to_menu"))
 	back_to_menu_btn.connect("pressed", Callable(self, "_on_back_to_menu"))
 	call_deferred("_connect_store_signals")
 
 func _connect_store_signals():
 	Store.connect("game_over", Callable(self, "_on_game_over"))
+	Store.connect("new_game_started", Callable(self, "_on_game_started"))
 	print("Connected to Store.game_over signal")
 	
 func _on_game_started():
+	if game:
+		game.queue_free()
+	game = preload("res://scenes/Game.tscn").instantiate()
+	board = game.get_node("Board")
+	add_child(game)
 	menu.visible = false
 	game.visible = true
 	game_over_layer.visible = false

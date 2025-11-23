@@ -5,8 +5,8 @@ signal board_changed(board)
 signal allowed_moves_changed(highlights)
 signal turn_changed(player_id)
 signal game_over(winner_color)
-signal my_color_changed(color)
 signal last_move_changed(last_move)
+signal new_game_started()
 
 var game_id: String
 var board: Dictionary = {}
@@ -36,20 +36,19 @@ func apply_state(payload: Dictionary):
 	last_move = payload.get("lastMove", {})
 
 	board = _array_to_map(payload.boardState)
-
-	# Determine whether *you* are white or black
-	if my_color == "" and player_turn != "":
-		if player_turn == Networking.player_id:
-			my_color = "WHITE"
-		else:
-			my_color = "BLACK"
-		emit_signal("my_color_changed", my_color)
+	
+	my_color = payload.players[Networking.player_id].get("color", "")
+	
 
 	emit_signal("board_changed", board)
 	emit_signal("allowed_moves_changed", _highlight_tiles(allowed_moves))
 	emit_signal("turn_changed", player_turn)
 	emit_signal("state_changed")
 	emit_signal("last_move_changed", last_move)
+	
+	
+	if last_move.is_empty():
+		emit_signal("new_game_started")
 
 	if game_is_over:
 		print("Store: Game is over! Winner: ", winner_color)

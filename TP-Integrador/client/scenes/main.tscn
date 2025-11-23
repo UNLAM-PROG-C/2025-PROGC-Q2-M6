@@ -1,8 +1,7 @@
-[gd_scene load_steps=6 format=3 uid="uid://b57qqm1eu4yv2"]
+[gd_scene load_steps=5 format=3 uid="uid://b57qqm1eu4yv2"]
 
 [ext_resource type="Script" uid="uid://dnou7qehtq4sb" path="res://logic/menu.gd" id="1_0xm2m"]
 [ext_resource type="Script" uid="uid://cbc42k1vud14e" path="res://logic/main.gd" id="1_h2yge"]
-[ext_resource type="Script" uid="uid://blbpyrk76vov0" path="res://logic/board.gd" id="1_ig7tw"]
 [ext_resource type="Script" uid="uid://dp882yo0tkfyd" path="res://logic/game_list_panel.gd" id="3_jyhfs"]
 [ext_resource type="PackedScene" uid="uid://bdwql4l00aknt" path="res://scenes/GameRow.tscn" id="4_tbgi4"]
 
@@ -136,43 +135,8 @@ size_flags_horizontal = 6
 size_flags_vertical = 4
 text = "Refresh"
 
-[node name="Game" type="Node2D" parent="."]
-
-[node name="Board" type="Node2D" parent="Game"]
-script = ExtResource("1_ig7tw")
-
-[node name="Tiles" type="Node2D" parent="Game/Board"]
-
-[node name="Pieces" type="Node2D" parent="Game/Board"]
-
-[node name="ExitBtn" type="Button" parent="Game/Board"]
-anchors_preset = -1
-anchor_left = 7.825
-anchor_top = -0.05
-anchor_right = 7.825
-anchor_bottom = -0.05
-offset_left = 527.0
-offset_top = 8.0
-offset_right = 587.0
-offset_bottom = 36.0
-grow_horizontal = 0
-theme_override_font_sizes/font_size = 14
-text = "EXIT"
-metadata/_edit_use_anchors_ = true
-
-[node name="ExitConfirmDialog" type="ConfirmationDialog" parent="Game/Board"]
-oversampling_override = 1.0
-size = Vector2i(250, 100)
-dialog_text = "Are you sure you want to exit?"
-
-[node name="OpponentLeftDialog" type="AcceptDialog" parent="Game/Board"]
-oversampling_override = 1.0
-title = "Aviso"
-position = Vector2i(0, 36)
-size = Vector2i(278, 200)
-dialog_text = "El oponente abandono la partida. "
-
 [node name="GameOverLayer" type="CanvasLayer" parent="."]
+visible = false
 
 [node name="Overlay" type="ColorRect" parent="GameOverLayer"]
 anchors_preset = 15
