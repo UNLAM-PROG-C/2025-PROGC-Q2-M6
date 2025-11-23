@@ -33,6 +33,20 @@ class PlayerConnection {
     @OnWebSocketClose
     fun onClose(statusCode: Int, reason: String?) {
         println("Player disconnected: $id")
+        // Si estaba en una partida, delegar la limpieza al GameHandler.
+        try {
+            if (isInGame && gameHandler != null) {
+                // notificar a rivales/espectadores
+                gameHandler?.handlePlayerLeave(id)
+            }
+        } catch (e: Exception) {
+            println("Error removing player from game on disconnect: ${e.message}")
+        } finally {
+            // limpiar estado local
+            isInGame = false
+            gameHandler = null
+            session = null
+        }
     }
 
     @OnWebSocketMessage
