@@ -38,6 +38,18 @@ func _ready():
 	Networking.connect("game_state", Callable(self, "_on_game_state"))
 	Networking.connect("error_received", Callable(self, "_on_error"))
 	Networking.connect("games_list", Callable(self, "_on_games_list"))
+
+func reset_to_lobby():
+	# Resetear todos los paneles y botones al estado inicial del lobby
+	connect_panel.visible = false
+	lobby_panel.visible = true
+	game_list_panel.visible = false
+	
+	create_button.disabled = false
+	join_button.disabled = false
+	cancel_button.visible = false
+	
+	status_label.text = ""
 	
 func _on_ConnectButton_pressed():
 	var url = server_url.text.trim_suffix(" ")
