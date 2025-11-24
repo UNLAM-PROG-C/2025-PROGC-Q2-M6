@@ -75,3 +75,44 @@ jobs:
         with:
           name: windows
           path: build/windows
+
+  publish-release:
+    runs-on: ubuntu-latest
+    needs: [server-build, client-build]
+
+    steps:
+      - name: Extract release version from branch name
+        id: version
+        run: |
+          BRANCH="${GITHUB_HEAD_REF#release/}"
+          echo "tag=v$BRANCH" >> $GITHUB_OUTPUT
+
+      - name: Download server artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: native-executables
+          path: ./release/server
+
+      - name: Download Windows client artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: windows
+          path: ./release/client/windows
+
+      - name: Download Web client artifact (zip)
+        uses: actions/download-artifact@v4
+        with:
+          name: web
+          path: ./release/client/web
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: ${{ steps.version.outputs.tag }}
+          files: |
+            release/server/**
+            release/client/windows/**
+            release/client/web/web.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
