@@ -5,6 +5,9 @@ on:
     branches:
       - 'release/*'
 
+permissions:
+  contents: write
+
 jobs:
   server-build:
     runs-on: windows-latest  # required to generate real .exe files
