@@ -185,6 +185,3 @@ horizontal_alignment = 1
 layout_mode = 2
 size_flags_horizontal = 4
 text = "Back to Menu"
-
-[connection signal="confirmed" from="Game/Board/ExitConfirmDialog" to="Game/Board" method="_on_exit_confirm_dialog_confirmed"]
-[connection signal="confirmed" from="Game/Board/OpponentLeftDialog" to="Game/Board" method="_on_opponent_left_dialog_confirmed"]

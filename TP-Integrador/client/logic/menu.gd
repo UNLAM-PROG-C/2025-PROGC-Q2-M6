@@ -15,7 +15,6 @@ signal left_game_ack
 
 @onready var status_label: Label = $LobbyPanel/StatusLabel
 @onready var game_list_panel: Control = $GameListPanel
-@onready var board: Board = get_node("/root/Main/Game/Board")
 
 
 func _ready():

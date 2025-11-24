@@ -52,10 +52,13 @@ func _show_game_over_panel():
 
 func _on_back_to_menu():
 	print("Returning to menu...")
-	
-	game_over_layer.visible = false
-	game.visible = false
-	
+	game_over_layer.hide()
+
+	if game:
+		game.queue_free()
+		game = null
+		board = null
+
 	menu.visible = true
 	menu.reset_to_lobby()
 	
