@@ -22,7 +22,7 @@ jobs:
 
       - name: Build native executable
         working-directory: TP-Integrador/server
-        run: ./gradlew nativeBuild
+        run: ./gradlew --no-daemon nativeBuild
 
       - name: Upload all generated .exe files
         uses: actions/upload-artifact@v4
