@@ -4,14 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.eclipse.jetty.websocket.api.Session
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage
-import org.eclipse.jetty.websocket.api.annotations.WebSocket
+import org.eclipse.jetty.websocket.api.WebSocketListener
 import java.util.UUID
 
-@WebSocket
-class PlayerConnection {
+class PlayerConnection : WebSocketListener {
     val id: String = UUID.randomUUID().toString()
     private var session: Session? = null
     private var isInGame: Boolean = false
@@ -23,16 +19,14 @@ class PlayerConnection {
             addMixIn(WsMessage::class.java, WsMessageMixin::class.java)
         }
 
-    @OnWebSocketConnect
-    fun onConnect(session: Session) {
+    override fun onWebSocketConnect(session: Session) {
         this.session = session
         println("Player connected: $id")
         session.remote.sendString("""{"type": "connected", "payload": {"playerId": "$id"}}""")
     }
 
-    @OnWebSocketClose
-    fun onClose(statusCode: Int, reason: String?) {
-        println("Player disconnected: $id")
+    override fun onWebSocketClose(statusCode: Int, reason: String?) {
+        println("Player disconnected: $id, $statusCode, $reason")
         // Si estaba en una partida, delegar la limpieza al GameHandler.
         try {
             if (isInGame && gameHandler != null) {
@@ -49,14 +43,13 @@ class PlayerConnection {
         }
     }
 
-    @OnWebSocketMessage
-    fun onMessage(session: Session, message: String) {
+    override fun onWebSocketText(message: String) {
         println("Received message from $id: $message")
         val data = try {
             mapper.readValue(message, WsMessage::class.java)
         } catch (e: Exception) {
             println("Failed to parse message: ${e.message}")
-            session.remote.sendString("""{"type": "error", "payload": "Invalid message format"}""")
+            this.session!!.remote.sendString("""{"type": "error", "payload": "Invalid message format"}""")
             return
         }
 
@@ -69,7 +62,7 @@ class PlayerConnection {
             is LeaveGameMessage -> handleLeaveGame()
             is ListGamesMessage -> handleListGames()
             else -> {
-                session.remote.sendString("""{"type": "error", "payload": "Unknown message type"}""")
+                this.session!!.remote.sendString("""{"type": "error", "payload": "Unknown message type"}""")
             }
         }
     }

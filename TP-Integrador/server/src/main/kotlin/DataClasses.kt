@@ -3,7 +3,7 @@ import com.github.bhlangonijr.chesslib.Square
 import com.github.bhlangonijr.chesslib.move.Move
 import org.eclipse.jetty.websocket.api.Session
 
-class SimpleMove(val from: String, val to: String) {
+data class SimpleMove(val from: String, val to: String) {
     fun toMove(promotion: Piece = Piece.NONE): Move {
         return Move(Square.valueOf(from), Square.valueOf(to), promotion)
     }
