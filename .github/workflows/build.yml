@@ -20,9 +20,6 @@ jobs:
           distribution: 'graalvm'
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
-
       - name: Build native executable
         working-directory: TP-Integrador/server
         run: ./gradlew nativeBuild
