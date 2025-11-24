@@ -1,7 +1,7 @@
 plugins {
   kotlin("jvm") version "2.2.0"
   application
-  id("org.graalvm.buildtools.native") version "0.10.4"
+  id("org.graalvm.buildtools.native") version "0.11.1"
 }
 
 group = "com.example"
@@ -48,5 +48,4 @@ graalvmNative {
             buildArgs.add("--no-fallback")
         }
     }
-    toolchainDetection.set(false)
 }
