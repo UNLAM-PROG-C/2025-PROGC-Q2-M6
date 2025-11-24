@@ -1,6 +1,7 @@
 plugins {
   kotlin("jvm") version "2.2.0"
   application
+  id("org.graalvm.buildtools.native") version "0.10.4"
 }
 
 group = "com.example"
@@ -37,4 +38,15 @@ tasks.test {
 
 application {
     mainClass.set("MainKt")
+}
+
+graalvmNative {
+    binaries {
+        named("main") {
+            imageName.set("ChessServer")
+            mainClass.set("MainKt")
+            buildArgs.add("--no-fallback")
+        }
+    }
+    toolchainDetection.set(false)
 }
