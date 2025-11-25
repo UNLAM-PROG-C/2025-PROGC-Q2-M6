@@ -16,7 +16,6 @@ func _ready():
 func _connect_store_signals():
 	Store.connect("game_over", Callable(self, "_on_game_over"))
 	Store.connect("new_game_started", Callable(self, "_on_game_started"))
-	print("Connected to Store.game_over signal")
 	
 func _on_game_started():
 	if game:
@@ -29,9 +28,7 @@ func _on_game_started():
 	game_over_layer.visible = false
 
 func _on_game_over(winner_color: Variant):
-	print("Game over called! Winner: ", winner_color, " My color: ", Store.my_color)
-	
-	var message = ""
+	var message := ""
 	
 	if winner_color == null or winner_color == "":
 		message = "Draw!"
@@ -40,7 +37,6 @@ func _on_game_over(winner_color: Variant):
 	else:
 		message = "You Lost!"
 	
-	print("Showing message: ", message)
 	result_label.text = message
 	
 	call_deferred("_show_game_over_panel")
@@ -48,10 +44,8 @@ func _on_game_over(winner_color: Variant):
 func _show_game_over_panel():
 	game_over_layer.visible = true
 	game_over_layer.show()
-	print("Panel should be visible now")
 
 func _on_back_to_menu():
-	print("Returning to menu...")
 	game_over_layer.hide()
 
 	if game:
@@ -63,5 +57,3 @@ func _on_back_to_menu():
 	menu.reset_to_lobby()
 	
 	Store.clear()
-		
-	print("Back to menu complete")

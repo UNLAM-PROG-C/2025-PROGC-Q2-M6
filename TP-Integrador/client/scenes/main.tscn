@@ -31,13 +31,11 @@ alignment = 1
 
 [node name="ServerURL" type="LineEdit" parent="Menu/ConnectPanel"]
 layout_mode = 2
-text = "localhost:3000/ws"
 placeholder_text = "server"
 alignment = 1
 
 [node name="PlayerName" type="LineEdit" parent="Menu/ConnectPanel"]
 layout_mode = 2
-text = "Pepe"
 placeholder_text = "Player name"
 alignment = 1
 

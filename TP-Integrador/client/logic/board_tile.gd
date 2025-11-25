@@ -11,9 +11,9 @@ func _draw() -> void:
 
 func _ready():
 	name = tile_name
-	color = Color(0.4, 0.3, 0.2) if is_dark else Color(0.9, 0.9, 0.9)
+	color = Config.TileColors.DARK if is_dark else Config.TileColors.LIGHT
 	highlight = ColorRect.new()
-	highlight.color = Color(1.0, 0.85, 0.2, 0.6)
+	highlight.color = Config.TileColors.HIGHLIGHT
 	highlight.visible = false
 	highlight.size = size
 	add_child(highlight)
