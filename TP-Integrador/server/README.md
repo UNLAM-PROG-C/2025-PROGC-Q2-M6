@@ -85,14 +85,7 @@ Todos los mensajes requieren el campo `type`:
 ```cmd
 cd server
 
-REM Compilar y ejecutar tests
-gradlew.bat test
-
-REM Iniciar servidor (puerto 3000 por defecto)
 gradlew.bat run
-
-REM Puerto personalizado
-gradlew.bat run --args="--port=8080"
 ```
 
 El servidor estará disponible en `ws://localhost:3000/ws`
