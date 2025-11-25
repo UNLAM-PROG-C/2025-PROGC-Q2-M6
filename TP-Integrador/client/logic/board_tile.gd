@@ -27,13 +27,7 @@ func _ready():
 	Store.connect("highlight_moves", Callable(self, "_on_moves_changed"))
 
 func _on_moves_changed(from_square: String, available_squares: Array):
-	if tile_name.to_upper() in available_squares:
-		# Verificar si hay una pieza enemiga en este casillero
-		var has_enemy_piece = Store.board.get(tile_name, "") != "" and Store.board.get(tile_name, "") != "NONE"
-		move_indicator.set_capture(has_enemy_piece)
-		move_indicator.visible = true
-	else:
-		move_indicator.visible = false
+	move_indicator.visible = tile_name.to_upper() in available_squares
 
 func _on_last_move_changed(last_move: Dictionary):
 	if last_move.has("from") and last_move.has("to"):
