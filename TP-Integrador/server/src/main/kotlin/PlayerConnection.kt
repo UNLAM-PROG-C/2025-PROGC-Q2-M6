@@ -5,6 +5,7 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.eclipse.jetty.websocket.api.Session
 import org.eclipse.jetty.websocket.api.WebSocketListener
+import utils.NoOpWriteCallback
 import java.util.UUID
 
 class PlayerConnection : WebSocketListener {
@@ -76,7 +77,6 @@ class PlayerConnection : WebSocketListener {
         if (game.handlePlayerJoin(Player(id, session!!, "WHITE"))) {
             this.gameHandler = game
             this.isInGame = true
-            LobbyManager.broadcastGamesList()
             session?.remote?.sendString("""{"type": "game_created", "payload": {"gameId": "${game.id}"}}""")
         } else {
             session?.remote?.sendString("""{"type": "error", "payload": "Failed to create game"}""")
@@ -87,31 +87,13 @@ class PlayerConnection : WebSocketListener {
         val gameId = message.payload.gameId
         val game = GameStore.getGame(gameId)
 
-        handleUnsubListGames()
-
-        /**
-         * TODO: matchmaking workaround
-         */
-        if (game == null) {
-            
-            val firstGame = GameStore.games.values.find {
-                it.players.size < 2
-            }
-            if (firstGame != null) {
-                val player = Player(id, session!!, "BLACK")
-                if (!firstGame.handlePlayerJoin(player)) {
-                    session?.remote?.sendString("""{"type": "error", "payload": "Game is full"}""")
-                    return
-                }
-                this.gameHandler = firstGame
-                this.isInGame = true
-                session?.remote?.sendString("""{"type": "joined_game", "payload": {"gameId": "${firstGame.id}"}}""")
-                return
-            }
+        if(game == null) {
             session?.remote?.sendString("""{"type": "error", "payload": "Game not found"}""")
             return
         }
-        
+
+        handleUnsubListGames()
+
         val player = Player(id, session!!, "BLACK")
         if (!game.handlePlayerJoin(player)) {
             session?.remote?.sendString("""{"type": "error", "payload": "Game is full"}""")
@@ -190,6 +172,6 @@ class PlayerConnection : WebSocketListener {
         }
     }
     fun send(data: Any) {
-        session?.remote?.sendString(mapper.writeValueAsString(data))
+        session?.remote?.sendString(mapper.writeValueAsString(data), NoOpWriteCallback)
     }
 }

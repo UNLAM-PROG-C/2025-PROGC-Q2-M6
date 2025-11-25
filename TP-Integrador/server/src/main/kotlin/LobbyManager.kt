@@ -17,7 +17,7 @@ object LobbyManager {
     }
 
     fun sendGamesListTo(player: PlayerConnection) {
-        val gamesInfo = GameStore.games.values.map { game ->
+        val gamesInfo = GameStore.getAllGamesReadOnly().map { game ->
             mapOf(
                 "id" to game.id,
                 "players" to game.players.size,
@@ -30,7 +30,6 @@ object LobbyManager {
             "payload" to mapOf("games" to gamesInfo)
         )
 
-        // usar el helper de PlayerConnection para enviar
         player.send(response)
     }
 
