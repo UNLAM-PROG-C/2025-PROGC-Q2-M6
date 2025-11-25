@@ -18,6 +18,9 @@ var winner_color: Variant = ""
 var my_color: String = ""
 var last_move: Dictionary = {}
 
+func _ready() -> void:
+	Networking.connect("game_state", Callable(self, "apply_state"))
+
 func clear():
 	game_id = ""
 	board.clear()

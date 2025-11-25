@@ -19,7 +19,7 @@ var is_connecting := false
 var is_open := false
 var player_id := ""
 
-func connect_ws(_url: String):
+func connect_ws(_url: String) -> void:
 	url = _url
 	peer = WebSocketPeer.new()
 
