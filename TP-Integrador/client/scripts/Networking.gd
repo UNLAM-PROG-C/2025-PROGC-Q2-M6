@@ -136,9 +136,12 @@ func send_leave_game():
 
 func send_list_games():
 	_send({
-		"type": "list_games"
+		"type": "subscribe_list_games"
 	})
-	
+func unsub_list_games():
+	_send({
+		"type": "unsubscribe_list_games"
+	})
 func _send(dict: Dictionary):
 	if peer != null and peer.get_ready_state() == WebSocketPeer.STATE_OPEN:
 		peer.send_text(JSON.stringify(dict))
