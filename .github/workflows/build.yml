@@ -87,7 +87,7 @@ jobs:
       - name: Extract release version from branch name
         id: version
         run: |
-          BRANCH="${GITHUB_HEAD_REF#release/}"
+          BRANCH="${GITHUB_REF_NAME#release/}"
           echo "tag=v$BRANCH" >> $GITHUB_OUTPUT
 
       - name: Download server artifact
