@@ -36,6 +36,8 @@ func _on_drag_start(event: InputEventMouseButton) -> void:
 	original_square = board.get_square_from_pos(global_position)
 	drag_offset = global_position - event.global_position
 	move_to_front()
+	
+	Store.highlight_from(original_square)
 
 func _on_drag_motion(event: InputEventMouseMotion):
 	if dragging:
@@ -43,6 +45,8 @@ func _on_drag_motion(event: InputEventMouseMotion):
 
 func _on_drag_end(event: InputEventMouseButton) -> void:
 	dragging = false
+	
+	Store.clear_highlights()
 	
 	var dropped_square := board.get_square_from_pos(event.global_position)
 	

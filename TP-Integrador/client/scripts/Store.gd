@@ -7,6 +7,7 @@ signal turn_changed(player_id)
 signal game_over(winner_color)
 signal last_move_changed(last_move)
 signal new_game_started()
+signal highlight_moves(from_square, available_squares)
 
 var game_id: String
 var board: Dictionary = {}
@@ -94,3 +95,18 @@ func try_move(from: String, to: String) -> bool:
 
 func is_my_turn() -> bool:
 	return player_turn == Networking.player_id
+
+func highlight_from(square: String):
+	var from_up := square.to_upper()
+	var available := []
+	
+	for m in allowed_moves:
+		var mf := String(m.get("from", "")).to_upper()
+		if mf == from_up:
+			var mt := String(m.get("to", "")).to_upper()
+			available.append(mt)
+	
+	emit_signal("highlight_moves", from_up, available)
+
+func clear_highlights():
+	emit_signal("highlight_moves", "", [])
