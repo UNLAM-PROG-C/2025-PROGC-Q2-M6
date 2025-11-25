@@ -7,6 +7,7 @@ var board: Node2D
 @onready var result_label: Label = $GameOverLayer/GameOverPanel/VBoxContainer/ResultLabel
 @onready var back_to_menu_btn: Button = $GameOverLayer/GameOverPanel/VBoxContainer/BackToMenuBtn
 
+
 func _ready():
 	game_over_layer.visible = false
 	menu.left_game_ack.connect(_on_back_to_menu)
@@ -14,7 +15,6 @@ func _ready():
 	Networking.joined_as_spectator.connect(_on_viewer_joined)
 	Store.game_over.connect(_on_game_over)
 	Store.new_game_started.connect(_on_game_started)
-	
 
 func _on_viewer_joined():
 	Store.set_viewer()
@@ -49,7 +49,7 @@ func _on_game_over(winner_color: Variant):
 func _show_game_over_panel():
 	game_over_layer.visible = true
 	game_over_layer.show()
-
+	
 func _on_back_to_menu():
 	game_over_layer.hide()
 

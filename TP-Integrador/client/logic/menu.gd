@@ -12,10 +12,11 @@ signal left_game_ack
 @onready var create_button: Button = $LobbyPanel/CreateGameBtn
 @onready var join_button: Button = $LobbyPanel/JoinGameBtn
 @onready var cancel_button: Button = $LobbyPanel/CancelBtn
+@onready var exit_system_button: Button = $LobbyPanel/ExitBtn
+@onready var exit_screen: CanvasLayer = $"../ExitLayer"
 
 @onready var status_label: Label = $LobbyPanel/StatusLabel
 @onready var game_list_panel := $GameListPanel
-
 
 func _ready():
 	server_url.text = Config.MenuDefaults.REMOTE_SERVER_URL if OS.has_feature("template") else Config.MenuDefaults.LOCAL_SERVER_URL
@@ -23,9 +24,11 @@ func _ready():
 	lobby_panel.visible = false
 	game_list_panel.visible = false
 	cancel_button.visible = false
+
 	
 	connect_button.pressed.connect(_on_ConnectButton_pressed)
 	create_button.pressed.connect(_on_CreateButton_pressed)
+	exit_system_button.pressed.connect(_on_exit_pressed)
 	cancel_button.pressed.connect(_on_leave_game)
 	join_button.pressed.connect(_on_JoinButton_pressed)
 	
@@ -147,11 +150,17 @@ func _on_leave_game():
 
 # left game confirmation signal from server and send signal
 func _on_left_game():
-	emit_signal("left_game_ack")	
-#	
-# --- ERRORS ---
-#
+	emit_signal("left_game_ack")
 	
+func _on_exit_pressed():
+	Networking.close()
+	connect_panel.visible = false
+	lobby_panel.visible = false
+	exit_screen.visible = true
+	exit_screen.show()
+	
+# --- ERRORS ---
+#	
 func _on_error(msg):
 	status_label.text = "Error: " + str(msg)
 	

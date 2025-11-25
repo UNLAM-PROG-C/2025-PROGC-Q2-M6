@@ -8,12 +8,14 @@ import org.eclipse.jetty.websocket.api.WebSocketListener
 import utils.NoOpWriteCallback
 import java.util.UUID
 
+
 class PlayerConnection : WebSocketListener {
     val id: String = UUID.randomUUID().toString()
     private var session: Session? = null
     private var isInGame: Boolean = false
     private var gameHandler: GameHandler? = null
     private var subscribedToLobby: Boolean = false
+    private val normalClosure = 1000
 
     val mapper: ObjectMapper = jacksonObjectMapper()
         .registerModule(KotlinModule.Builder().build())
@@ -60,6 +62,7 @@ class PlayerConnection : WebSocketListener {
 
         when (data) {
             is CreateGameMessage -> handleCreateGame()
+            is ExitGameMessage -> handleExitGame()
             is JoinGameMessage -> handleJoinGame(data)
             is MakeMoveMessage -> handleMakeMove(data)
             is LeaveGameMessage -> handleLeaveGame()
@@ -82,6 +85,16 @@ class PlayerConnection : WebSocketListener {
             session?.remote?.sendString("""{"type": "error", "payload": "Failed to create game"}""")
         }
     }
+    fun handleExitGame() {
+        println("Player $id exiting game")
+        // Cerrar la sesión desde SERVIDOR
+        try {
+            session?.close(normalClosure, "Client exit button")
+        } catch (e: Exception) {
+            println("Error closing session: ${e.message}")
+        }
+    }
+
 
     fun handleJoinGame(message: JoinGameMessage) {
         val gameId = message.payload.gameId

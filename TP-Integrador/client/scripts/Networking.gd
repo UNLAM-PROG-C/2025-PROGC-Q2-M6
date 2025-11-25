@@ -14,12 +14,13 @@ signal left_game()
 signal opponent_left()
 signal joined_as_spectator()
 signal player_left()
+signal exit_game
 
 var peer: WebSocketPeer
 var is_connecting := false
 var is_open := false
 var player_id := ""
-
+var normal_closure = 1000
 func connect_ws(url: String) -> void:
 	var normalized_url := normalize_ws_url(url)
 	peer = WebSocketPeer.new()
@@ -36,7 +37,6 @@ func connect_ws(url: String) -> void:
 func _process(delta: float) -> void:
 	if peer == null:
 		return
-
 	peer.poll()
 
 	match peer.get_ready_state():
@@ -67,6 +67,7 @@ func _process(delta: float) -> void:
 				emit_signal("disconnected")
 			if peer.get_close_code() != -1:
 				print("Closed WS: %s" % peer.get_close_reason())
+			peer = null
 
 
 func _on_message(text: String) -> void:
@@ -118,8 +119,17 @@ func _on_message(text: String) -> void:
 # ---- Sending ----
 #
 
+func close():
+	send_exit_system()
+	await get_tree().create_timer(0.05).timeout
+	
+	
+
 func send_create_game():
 	_send({"type": "create_game"})
+
+func send_exit_system():
+	_send({"type": "exit_game"})
 
 func send_join_game(game_id: String):
 	_send({
