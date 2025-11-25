@@ -1,6 +1,7 @@
 extends PanelContainer
 
 signal join_pressed(game_id)
+signal viewer_pressed(game_id)
 
 @export var game_id: String = ""
 @export var title_text: String = ""
@@ -12,6 +13,7 @@ signal join_pressed(game_id)
 @onready var player_count_label = $HBoxContainer/PlayerCountLabel
 @onready var observers_label = $HBoxContainer/ObserversLabel
 @onready var join_button = $HBoxContainer/JoinButton
+@onready var viewer_button = $HBoxContainer/JoinAsViewer
 
 func _ready():
 	# seguridad: si el diseñador no puso las rutas exactas, evitamos crash
@@ -22,6 +24,7 @@ func _ready():
 	# setear texto inicial
 	_update_ui()
 	join_button.connect("pressed", Callable(self, "_on_join_pressed"))
+	viewer_button.connect("pressed", Callable(self, "_on_viewer_pressed"))
 
 func setup(data: Dictionary) -> void:
 	call_deferred("_setup_deferred", data)
@@ -51,6 +54,11 @@ func _update_ui():
 	observers_label.text = "Spectators: " + str(spectators)
 	# Bloquear el botón si ya hay 2 jugadores
 	join_button.disabled = not can_join
+	#bloquear si hay menos de dos jugadores
+	viewer_button.disabled = can_join
 
 func _on_join_pressed():
 	emit_signal("join_pressed", game_id)
+
+func _on_viewer_pressed():
+	emit_signal("viewer_pressed", game_id)

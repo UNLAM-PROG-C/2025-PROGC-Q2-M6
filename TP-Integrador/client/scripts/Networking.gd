@@ -12,6 +12,8 @@ signal error_received(message)
 signal games_list(payload)
 signal left_game()
 signal opponent_left()
+signal joined_as_spectator()
+signal player_left()
 
 var peer: WebSocketPeer
 var url: String = ""
@@ -103,9 +105,12 @@ func _on_message(text: String) -> void:
 			
 		"opponent_left":
 			emit_signal("opponent_left")
+		"player_left":
+			emit_signal("player_left")
 		"games_list":
 			emit_signal("games_list", payload)
-
+		"joined_as_spectator":
+			emit_signal("joined_as_spectator")
 		_:
 			print("Unknown WS type: ", text)
 
@@ -122,7 +127,13 @@ func send_join_game(game_id: String):
 		"type": "join_game",
 		"payload": { "gameId": game_id }
 	})
-
+	
+func send_join_viewer_game(game_id):
+	_send({
+		"type": "join_viewer_game",
+		"payload": { "gameId": game_id }
+	})
+	
 func send_make_move(from_square: String, to_square: String):
 	_send({
 		"type": "make_move",

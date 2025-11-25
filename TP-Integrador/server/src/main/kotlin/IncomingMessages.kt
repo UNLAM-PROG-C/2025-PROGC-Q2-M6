@@ -33,6 +33,24 @@ data class JoinGamePayload(
     private fun isValidUUID(s: String): Boolean =
         runCatching { UUID.fromString(s) }.isSuccess
 }
+/**
+ * join_viewer_game
+ */
+data class JoinGameSpectatorMessage(
+    override val type: String,
+    val payload: JoinGameSpectatorPayload
+) : WsMessage()
+
+data class JoinGameSpectatorPayload(
+    val gameId: String
+) {
+    init {
+        require(isValidUUID(gameId)) { "gameId must be a valid UUID" }
+    }
+
+    private fun isValidUUID(s: String): Boolean =
+        runCatching { UUID.fromString(s) }.isSuccess
+}
 
 /**
  * make_move
@@ -84,6 +102,7 @@ data class ListGamesMessage(
     JsonSubTypes.Type(MakeMoveMessage::class, name = "make_move"),
     JsonSubTypes.Type(CreateGameMessage::class, name = "create_game"),
     JsonSubTypes.Type(JoinGameMessage::class, name = "join_game"),
+    JsonSubTypes.Type(JoinGameSpectatorMessage::class, name = "join_viewer_game"),
     JsonSubTypes.Type(LeaveGameMessage::class, name = "leave_game"),
     JsonSubTypes.Type(ListGamesMessage::class, name = "list_games")
 )

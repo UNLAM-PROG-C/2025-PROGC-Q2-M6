@@ -12,11 +12,15 @@ func _ready():
 	menu.connect("left_game_ack", Callable(self,"_on_back_to_menu"))
 	back_to_menu_btn.connect("pressed", Callable(self, "_on_back_to_menu"))
 	call_deferred("_connect_store_signals")
-
+	Networking.connect("joined_as_spectator", Callable(self, "_on_viewer_joined"))
+	
 func _connect_store_signals():
 	Store.connect("game_over", Callable(self, "_on_game_over"))
 	Store.connect("new_game_started", Callable(self, "_on_game_started"))
 	print("Connected to Store.game_over signal")
+
+func _on_viewer_joined():
+	Store.set_viewer()
 	
 func _on_game_started():
 	if game:
@@ -32,7 +36,11 @@ func _on_game_over(winner_color: Variant):
 	print("Game over called! Winner: ", winner_color, " My color: ", Store.my_color)
 	
 	var message = ""
+	# 1) Caso espectadores:
+	if Store.is_viewer:
+		message = "Game ended."
 	
+	# jugadore
 	if winner_color == null or winner_color == "":
 		message = "Draw!"
 	elif winner_color == Store.my_color:

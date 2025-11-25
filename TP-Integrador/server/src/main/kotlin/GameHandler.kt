@@ -121,8 +121,14 @@ class GameHandler {
         if (gameEnded) {
             return // No notificar si el juego ya terminó
         }
+        if(spectators.find({ it.id == playerId }) != null) {
+            // Eliminar espectador
+            spectators.removeIf { it.id == playerId }
+            return
+        }
         // Eliminar jugador
-        players.removeIf { it.id == playerId } 
+        players.removeIf { it.id == playerId }
+        
         // Notificar al resto (jugadores restantes + espectadores)
         if (players.size == 1) {
             val remaining = players.first()

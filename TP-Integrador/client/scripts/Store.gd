@@ -16,8 +16,12 @@ var game_is_over: bool = false
 var winner_color: Variant = ""
 var my_color: String = ""
 var last_move: Dictionary = {}
+var is_viewer: bool = false
+var has_received_initial_state: bool = false
 
 func clear():
+	is_viewer = false
+	has_received_initial_state = false
 	game_id = ""
 	board.clear()
 	allowed_moves.clear()
@@ -28,28 +32,36 @@ func clear():
 
 
 func apply_state(payload: Dictionary):
+	var is_first_state = not has_received_initial_state
+	has_received_initial_state = true
+	
 	game_id = payload.gameId
 	allowed_moves = payload.allowedMoves
 	player_turn = payload.playerTurn
 	game_is_over = payload.gameOver
 	winner_color = payload.get("winner")
 	last_move = payload.get("lastMove", {})
-
 	board = _array_to_map(payload.boardState)
 	
-	my_color = payload.players[Networking.player_id].get("color", "")
-	
-
-	emit_signal("board_changed", board)
-	emit_signal("allowed_moves_changed", _highlight_tiles(allowed_moves))
+	var players_dict = payload.players
+	var players_count = players_dict.size()
+	var my_id = Networking.player_id
+	if players_count >= 2 and not players_dict.has(my_id):
+		is_viewer = true
+		my_color = ""
+		emit_signal("allowed_moves_changed", [])
+	else:
+		is_viewer = false
+		my_color = players_dict[my_id].get("color", "")
+		emit_signal("allowed_moves_changed", _highlight_tiles(allowed_moves))
+	 
+	emit_signal("board_changed", board)	
 	emit_signal("turn_changed", player_turn)
 	emit_signal("state_changed")
 	emit_signal("last_move_changed", last_move)
 	
-	
-	if last_move.is_empty():
+	if is_first_state:
 		emit_signal("new_game_started")
-
 	if game_is_over:
 		print("Store: Game is over! Winner: ", winner_color)
 		emit_signal("game_over", winner_color)
@@ -79,6 +91,8 @@ func _highlight_tiles(moves: Array) -> Array:
 	return result
 
 func try_move(from: String, to: String) -> bool:
+	if (is_viewer):
+		return false
 	if player_turn != Networking.player_id:
 		print("Not your turn!")
 		return false
@@ -94,3 +108,7 @@ func try_move(from: String, to: String) -> bool:
 
 func is_my_turn() -> bool:
 	return player_turn == Networking.player_id
+
+func set_viewer():
+	is_viewer = true
+	

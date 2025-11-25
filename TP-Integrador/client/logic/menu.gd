@@ -27,8 +27,10 @@ func _ready():
 	cancel_button.connect("pressed", Callable(self,"_on_leave_game"))
 	join_button.connect("pressed", Callable(self, "_on_JoinButton_pressed"))
 	game_list_panel.connect("join_game_requested", Callable(self, "_on_game_selected"))
+	game_list_panel.connect("join_game_viewer", Callable(self, "_on_game_selected_viewer"))
 	game_list_panel.connect("back_pressed", Callable(self, "_on_back_from_list"))
 	game_list_panel.connect("refresh_pressed", Callable(self, "_on_refresh_list"))
+
 	
 	# --- Networking signals ---
 	Networking.connect("connected", Callable(self, "_on_connected"))
@@ -135,8 +137,13 @@ func _on_game_state(payload):
 	# - Game can start
 	Store.apply_state(payload)
 
-	emit_signal("game_started")
 
+func _on_game_selected_viewer(game_id):
+	game_list_panel.visible = false
+	lobby_panel.visible = false
+	status_label.text = "Joining game %s..." % game_id
+	Networking.send_join_viewer_game(game_id)
+	
 func _on_game_selected(game_id):
 	game_list_panel.visible = false
 	lobby_panel.visible = false

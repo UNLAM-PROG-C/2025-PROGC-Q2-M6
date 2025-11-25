@@ -46,8 +46,4 @@ object GameStore {
         try { cleaner.shutdownNow() } catch (_: Exception) {}
     }
 
-    fun removeGame(gameId: String) {
-        games.remove(gameId)
-        println("Game removed: $gameId")
-    }
 }
