@@ -8,5 +8,5 @@ data class SimpleMove(val from: String, val to: String) {
         return Move(Square.valueOf(from), Square.valueOf(to), promotion)
     }
 }
-data class Player(val id: String, val session: Session, val color: String)
-data class Spectator(val id: String, val session: Session)
+data class Player(val id: String, val session: Session?, val color: String)
+data class Spectator(val id: String, val session: Session?)

@@ -4,23 +4,24 @@ import com.github.bhlangonijr.chesslib.Piece
 import utils.NoOpWriteCallback
 import java.util.UUID
 import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.atomic.AtomicLong
 
 class GameHandler {
     val id: String = UUID.randomUUID().toString()
     val board: Board = Board()
     val players: MutableList<Player> = CopyOnWriteArrayList()
     val spectators: MutableList<Spectator> = CopyOnWriteArrayList()
-    var lastMove: SimpleMove? = null;
+    var lastMove: SimpleMove? = null
     var gameEnded: Boolean = false 
     private set 
 
     // timestamp de última actividad (join, move, mensaje relevante)
     @Volatile
-    var lastActivityMillis: Long = System.currentTimeMillis()
+    var lastActivityMillis = AtomicLong(System.currentTimeMillis())
         private set
 
     private fun touch() {
-        lastActivityMillis = System.currentTimeMillis()
+        lastActivityMillis.set(System.currentTimeMillis())
     }
 
 
@@ -31,17 +32,18 @@ class GameHandler {
             return false
         }
         players.add(player)
-        touch() // actualizar última actividad
+        touch()
         if (players.size == 2) {
             broadcastState()
         }
+        LobbyManager.broadcastGamesList()
         return true
     }
 
     fun handleSpectatorJoin(spectator: Spectator) {
         spectators.add(spectator)
-        touch() // actualizar última actividad
-        broadcastState()
+        touch()
+        sendStateToSpectator(spectator)
     }
 
     fun handleMove(simpleMove: SimpleMove, playerId: String): Boolean {
@@ -54,15 +56,20 @@ class GameHandler {
         val moveToMake = simpleMove.toMove(promotion)
 
         if (!board.isMoveLegal(moveToMake, true)) {
-            return false;
+            return false
         }
 
         board.doMove(moveToMake)
         lastMove = simpleMove
-        touch() // actualizar última actividad
+        touch()
 
         broadcastState()
-        return true;
+
+        if(board.isMated || board.isDraw) {
+            handleGameOver()
+        }
+
+        return true
     }
 
     private fun getPromotionPiece(move: SimpleMove): Piece {
@@ -86,7 +93,6 @@ class GameHandler {
     }
 
     private fun buildGameState(): String {
-        val isOver = board.isMated || board.isDraw
         val payload = mutableMapOf(
             "gameId" to id,
             "boardState" to board.boardToArray(),
@@ -106,86 +112,68 @@ class GameHandler {
             )
         }
 
-        if (isOver) {
-            gameEnded = true
-        }
         val stateMessage = mapOf(
             "type" to "game_state",
             "payload" to payload
         )
         return mapper.writeValueAsString(stateMessage)
     }
-    
-    // Handle player leaving the game
+
     fun handlePlayerLeave(playerId: String) {
         if (gameEnded) {
-            return // No notificar si el juego ya terminó
+            return
         }
-        if(spectators.find({ it.id == playerId }) != null) {
-            // Eliminar espectador
+        if(spectators.find { it.id == playerId } != null) {
             spectators.removeIf { it.id == playerId }
             return
         }
-        // Eliminar jugador 
         players.removeIf { it.id == playerId }
-        // Notificar al resto (jugadores restantes + espectadores)
         if (players.size == 1) {
             val remaining = players.first()
             val opponentLeftMsg = mapOf(
                 "type" to "opponent_left",
                 "payload" to mapOf("playerId" to playerId)
             )
-            val opponentLeftJson = try {
-                mapper.writeValueAsString(opponentLeftMsg)
-            } catch (e: Exception) {
-                println("Failed to build opponent_left message: ${e.message}")
-                null
-            }
-            opponentLeftJson?.let {
-                try { remaining.session.remote.sendString(it) } catch (_: Exception) {}
-            }
+            val opponentLeftJson = mapper.writeValueAsString(opponentLeftMsg)
+
+            remaining.session?.remote?.sendString(opponentLeftJson, NoOpWriteCallback)
+
         }
-        // --- Mensaje para los espectadores ---
         val spectatorMsg = mapOf(
             "type" to "player_left",
             "payload" to mapOf("playerId" to playerId)
         )
-        val spectatorJson = try {
-            mapper.writeValueAsString(spectatorMsg)
-        } catch (e: Exception) {
-            println("Failed to build spectator message: ${e.message}")
-            null
-        }
+        val spectatorJson = mapper.writeValueAsString(spectatorMsg)
 
-        spectatorJson?.let {
-            spectators.mapNotNull { it.session }
-                .filter { it.isOpen }
-                .forEach { s ->
-                    try { s.remote.sendString(it) } catch (_: Exception) {}
-                }
-        }
+        spectators.forEach { it.session?.remote?.sendString(spectatorJson, NoOpWriteCallback) }
               
         try {
-            GameStore.games.remove(id) 
+            GameStore.removeGame(id)
             LobbyManager.broadcastGamesList()
         } catch (e: Exception) {
             println("Failed to remove game from store: ${e.message}")
         }
-
-        
-        return
     }
 
+    private fun sendStateToSpectator(spectator: Spectator)  {
+        spectator.session?.remote?.sendString(buildGameState(), NoOpWriteCallback)
+    }
 
     private fun broadcastState() {
         val stateMessage = buildGameState()
-        println("Broadcasting game state: $stateMessage")
         val allSessions = players.map { it.session } + spectators.map { it.session }
-        allSessions.filter { it.isOpen }.forEach { s ->
+        allSessions.filter { it?.isOpen == true }.forEach { s ->
             try {
-                s.remote.sendString(stateMessage, NoOpWriteCallback)
+                s?.remote?.sendString(stateMessage, NoOpWriteCallback)
             } catch (_: Exception) {
             }
         }
+    }
+
+    private fun handleGameOver() {
+        gameEnded = true
+        GameStore.removeGame(id)
+        players.clear()
+        spectators.clear()
     }
 }

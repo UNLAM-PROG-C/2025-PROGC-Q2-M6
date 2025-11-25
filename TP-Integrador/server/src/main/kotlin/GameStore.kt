@@ -4,11 +4,11 @@ import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 
 object GameStore {
-    val games: MutableMap<String, GameHandler> = ConcurrentHashMap()
+    private val games: MutableMap<String, GameHandler> = ConcurrentHashMap()
     
     private val cleaner: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor()
-    private const val CLEAN_INTERVAL_SECONDS: Long = 60      // cada 60s
-    private val STALE_THRESHOLD_MS: Long = TimeUnit.MINUTES.toMillis(30) // 30 minutos
+    private const val CLEAN_INTERVAL_SECONDS: Long = 60
+    private val STALE_THRESHOLD_MS: Long = TimeUnit.MINUTES.toMillis(30)
     
     fun newGame(): GameHandler {
         val game = GameHandler()
@@ -20,15 +20,22 @@ object GameStore {
         return games[gameId]
     }
 
+    fun removeGame(gameId: String) {
+        games.remove(gameId)
+    }
+
+    fun getAllGamesReadOnly(): Collection<GameHandler> {
+        return games.values
+    }
+
     fun startCleaner() {
         cleaner.scheduleAtFixedRate({
             try {
                 val now = System.currentTimeMillis()
                 val toRemove = mutableListOf<String>()
                 for ((id, game) in games) {
-                    val last = try { game.lastActivityMillis } catch (e: Exception) { 0L }
-                    // eliminar si vacío o inactivo por más del umbral
-                    if ((game.players.isEmpty() && game.spectators.isEmpty()) || (now - last) > STALE_THRESHOLD_MS) {
+                    val last = game.lastActivityMillis.get()
+                    if (game.players.isEmpty() || (now - last) > STALE_THRESHOLD_MS) {
                         toRemove.add(id)
                     }
                 }
