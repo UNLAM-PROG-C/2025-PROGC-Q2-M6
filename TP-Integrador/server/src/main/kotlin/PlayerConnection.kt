@@ -62,6 +62,7 @@ class PlayerConnection : WebSocketListener {
             is JoinGameMessage -> handleJoinGame(data)
             is MakeMoveMessage -> handleMakeMove(data)
             is LeaveGameMessage -> handleLeaveGame()
+            is JoinGameSpectatorMessage -> handleJoinSpectatorGame(data)
             is ListSubGamesMessage -> handleSubListGames()
             is ListUnsGamesMessage -> handleUnsubListGames()
             else -> {
@@ -92,6 +93,7 @@ class PlayerConnection : WebSocketListener {
          * TODO: matchmaking workaround
          */
         if (game == null) {
+            
             val firstGame = GameStore.games.values.find {
                 it.players.size < 2
             }
@@ -109,6 +111,7 @@ class PlayerConnection : WebSocketListener {
             session?.remote?.sendString("""{"type": "error", "payload": "Game not found"}""")
             return
         }
+        
         val player = Player(id, session!!, "BLACK")
         if (!game.handlePlayerJoin(player)) {
             session?.remote?.sendString("""{"type": "error", "payload": "Game is full"}""")
@@ -117,6 +120,27 @@ class PlayerConnection : WebSocketListener {
         this.gameHandler = game
         this.isInGame = true
         session?.remote?.sendString("""{"type": "joined_game", "payload": {"gameId": "${game.id}"}}""")
+    }
+
+    fun handleJoinSpectatorGame(message: JoinGameSpectatorMessage) {
+        val gameId = message.payload.gameId
+        val game = GameStore.getGame(gameId)
+        
+        
+        if (game == null ) {
+            session?.remote?.sendString("""{"type": "error", "payload": "Game not found"}""")
+            return
+        }
+         if(game.players.size < 2) {
+            session?.remote?.sendString("""{"type": "error", "payload": "Cannot join as spectator to a game with less than 2 players"}""")
+            return
+        }
+
+        val spectator = Spectator(id, session!!)
+        game.handleSpectatorJoin(spectator)
+        this.gameHandler = game
+        this.isInGame = true
+        session?.remote?.sendString("""{"type": "joined_as_spectator", "payload": {"gameId": "${game.id}"}}""")
     }
 
     fun handleLeaveGame() {

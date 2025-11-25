@@ -3,6 +3,7 @@ extends Panel
 signal back_pressed()
 signal refresh_pressed()
 signal join_game_requested(game_id)
+signal join_game_viewer(game_id)
 
 const GAME_ROW_SCENE := preload("res://scenes/GameRow.tscn")
 @export var game_row_scene: PackedScene
@@ -31,12 +32,15 @@ func populate(games):
 			"spectators": int(game.get("spectators", 0))
 		})
 		row.connect("join_pressed", Callable(self, "_on_row_join"))
+		row.connect("viewer_pressed",Callable(self,"_on_row_viewer_join"))
 		rows_container.add_child(row)
 
 func _on_row_join(game_id):
-	print("aqui se;al")
 	emit_signal("join_game_requested", game_id)
-
+	
+func _on_row_viewer_join(game_id):
+	emit_signal("join_game_viewer", game_id)
+	
 func _on_back():
 	emit_signal("back_pressed")
 

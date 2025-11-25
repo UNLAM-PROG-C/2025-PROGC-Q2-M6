@@ -6,6 +6,7 @@ class_name Board
 @onready var exit_button: Button = $ExitBtn
 @onready var exit_dialog: ConfirmationDialog = $ExitConfirmDialog
 @onready var opponent_left_dialog: AcceptDialog = $OpponentLeftDialog
+@onready var player_left_dialog: AcceptDialog = $PlayerLeftDialog
 
 const TILE_SIZE := Config.TILE_SIZE
 const TILE_SCENE := preload("res://scenes/BoardTile.tscn")
@@ -37,6 +38,7 @@ func _ready():
 	_connect_store_signal()
 	exit_button.connect("pressed", Callable(self, "_on_exit_button_pressed"))
 	Networking.connect("opponent_left", Callable(self, "_on_opponent_left"))
+	Networking.connect("player_left", Callable(self, "_on_player_left"))
 
 func _connect_store_signal():
 	Store.connect("board_changed", Callable(self, "_on_board_changed"))
@@ -108,8 +110,14 @@ func _on_exit_confirm_dialog_confirmed() -> void:
 	Networking.send_leave_game()
 
 #opponent_left signal received
-func _on_opponent_left():
+func _on_opponent_left():		
 	opponent_left_dialog.popup_centered()
 
 func _on_opponent_left_dialog_confirmed() -> void:
+	Networking.send_leave_game()
+	
+func _on_player_left():
+	player_left_dialog.popup_centered()
+
+func _on_player_left_dialog_confirmed() -> void:
 	Networking.send_leave_game()
