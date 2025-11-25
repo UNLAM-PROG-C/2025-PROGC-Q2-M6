@@ -7,7 +7,7 @@ class_name Board
 @onready var exit_dialog: ConfirmationDialog = $ExitConfirmDialog
 @onready var opponent_left_dialog: AcceptDialog = $OpponentLeftDialog
 
-const TILE_SIZE := 80
+const TILE_SIZE := Config.TILE_SIZE
 const TILE_SCENE := preload("res://scenes/BoardTile.tscn")
 const PIECE_SCENE := preload("res://scenes/Piece.tscn")
 const FILES := ["A","B","C","D","E","F","G","H"]

@@ -15,3 +15,5 @@ class MovementIndicatorConfig:
 class PlayerColor:
 	const WHITE := "WHITE"
 	const BLACK := "BLACK"
+
+const TILE_SIZE := 80
