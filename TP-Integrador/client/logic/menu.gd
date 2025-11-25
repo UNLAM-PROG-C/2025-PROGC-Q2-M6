@@ -142,11 +142,12 @@ func _on_game_selected(game_id):
 	lobby_panel.visible = false
 	status_label.text = "Joining game %s..." % game_id
 	Networking.send_join_game(game_id)
+	Networking.unsub_list_games()
 
 func _on_back_from_list():
 	game_list_panel.visible = false
 	lobby_panel.visible = true
-
+	Networking.unsub_list_games()
 # leave game request due cancel or opponent left
 func _on_leave_game():
 	Networking.send_leave_game()
