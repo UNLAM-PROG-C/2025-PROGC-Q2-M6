@@ -1,9 +1,10 @@
-[gd_scene load_steps=5 format=3 uid="uid://b57qqm1eu4yv2"]
+[gd_scene load_steps=6 format=3 uid="uid://b57qqm1eu4yv2"]
 
 [ext_resource type="Script" uid="uid://dnou7qehtq4sb" path="res://logic/menu.gd" id="1_0xm2m"]
 [ext_resource type="Script" uid="uid://cbc42k1vud14e" path="res://logic/main.gd" id="1_h2yge"]
 [ext_resource type="Script" uid="uid://dp882yo0tkfyd" path="res://logic/game_list_panel.gd" id="3_jyhfs"]
-[ext_resource type="PackedScene" uid="uid://bdwql4l00aknt" path="res://scenes/GameRow.tscn" id="4_tbgi4"]
+[ext_resource type="Texture2D" uid="uid://co7yu1svrypuj" path="res://images/menu-wallpaper.png" id="4_jyhfs"]
+[ext_resource type="Texture2D" uid="uid://d0l2eerta6cb2" path="res://images/exit-screen.png" id="5_tbgi4"]
 
 [node name="Main" type="Node"]
 script = ExtResource("1_h2yge")
@@ -82,7 +83,6 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("3_jyhfs")
-game_row_scene = ExtResource("4_tbgi4")
 
 [node name="MarginContainer" type="MarginContainer" parent="Menu/GameListPanel"]
 layout_mode = 1
@@ -132,6 +132,19 @@ layout_mode = 2
 size_flags_horizontal = 6
 size_flags_vertical = 4
 text = "Refresh"
+
+[node name="MenuWallpaper" type="TextureRect" parent="Menu"]
+show_behind_parent = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("4_jyhfs")
+expand_mode = 2
+stretch_mode = 5
 
 [node name="GameOverLayer" type="CanvasLayer" parent="."]
 visible = false
@@ -183,3 +196,11 @@ horizontal_alignment = 1
 layout_mode = 2
 size_flags_horizontal = 4
 text = "Back to Menu"
+
+[node name="ExitLayer" type="CanvasLayer" parent="."]
+visible = false
+
+[node name="ExitScreen" type="TextureRect" parent="ExitLayer"]
+offset_right = 640.0
+offset_bottom = 640.0
+texture = ExtResource("5_tbgi4")

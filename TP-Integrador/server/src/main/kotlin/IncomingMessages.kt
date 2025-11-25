@@ -14,6 +14,15 @@ data class CreateGameMessage(
     override val type: String,
 ) : WsMessage()
 
+/*
+exit_game
+
+*/
+data class ExitGameMessage(
+    override val type: String
+) : WsMessage()
+
+
 /**
  * join_game
  */
@@ -104,6 +113,7 @@ data class ListUnsGamesMessage(
 @JsonSubTypes(
     JsonSubTypes.Type(MakeMoveMessage::class, name = "make_move"),
     JsonSubTypes.Type(CreateGameMessage::class, name = "create_game"),
+    JsonSubTypes.Type(ExitGameMessage::class, name = "exit_game"),
     JsonSubTypes.Type(JoinGameMessage::class, name = "join_game"),
     JsonSubTypes.Type(JoinGameSpectatorMessage::class, name = "join_viewer_game"),
     JsonSubTypes.Type(LeaveGameMessage::class, name = "leave_game"),
