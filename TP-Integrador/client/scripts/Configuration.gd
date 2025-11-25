@@ -16,4 +16,8 @@ class PlayerColor:
 	const WHITE := "WHITE"
 	const BLACK := "BLACK"
 
+class MenuDefaults:
+	const LOCAL_SERVER_URL := "localhost:3000"
+	const REMOTE_SERVER_URL := "m6.mnovoa.dev"
+
 const TILE_SIZE := 80

@@ -17,6 +17,8 @@ signal left_game_ack
 
 
 func _ready():
+	server_url.text = Config.MenuDefaults.REMOTE_SERVER_URL if OS.has_feature("template") else Config.MenuDefaults.LOCAL_SERVER_URL
+	player_name.text = "" if OS.has_feature("template") else "Pepe"
 	lobby_panel.visible = false
 	game_list_panel.visible = false
 	cancel_button.visible = false
