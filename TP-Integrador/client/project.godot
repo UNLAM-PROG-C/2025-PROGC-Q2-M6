@@ -19,6 +19,7 @@ config/icon="res://icon.svg"
 
 Networking="*res://scripts/Networking.gd"
 Store="*res://scripts/Store.gd"
+Config="*res://scripts/Configuration.gd"
 
 [display]
 
