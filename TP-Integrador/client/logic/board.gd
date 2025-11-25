@@ -42,7 +42,7 @@ func _connect_store_signal():
 	Store.connect("board_changed", Callable(self, "_on_board_changed"))
 
 func _generate_board():
-	var reversed := Store.my_color == "BLACK"
+	var reversed := Store.my_color == Config.PlayerColor.BLACK
 	for rank in range(8):
 		for file in range(8):
 
@@ -97,7 +97,7 @@ func get_square_from_pos(event_global_position: Vector2) -> String:
 	
 func get_tile_position(square: String) -> Vector2:
 	if tiles.has(square):
-		return tiles[square].global_position #+ Vector2(TILE_SIZE/2, TILE_SIZE/2)
+		return tiles[square].global_position
 	return Vector2.ZERO
 
 func _on_exit_button_pressed():
