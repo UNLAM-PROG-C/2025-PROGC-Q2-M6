@@ -126,9 +126,8 @@ class GameHandler {
             spectators.removeIf { it.id == playerId }
             return
         }
-        // Eliminar jugador
+        // Eliminar jugador 
         players.removeIf { it.id == playerId }
-        
         // Notificar al resto (jugadores restantes + espectadores)
         if (players.size == 1) {
             val remaining = players.first()
@@ -142,12 +141,10 @@ class GameHandler {
                 println("Failed to build opponent_left message: ${e.message}")
                 null
             }
-            
             opponentLeftJson?.let {
                 try { remaining.session.remote.sendString(it) } catch (_: Exception) {}
             }
         }
-
         // --- Mensaje para los espectadores ---
         val spectatorMsg = mapOf(
             "type" to "player_left",
@@ -167,16 +164,15 @@ class GameHandler {
                     try { s.remote.sendString(it) } catch (_: Exception) {}
                 }
         }
-        // Si no quedan ni jugadores ni espectadores, eliminar la partida del store
-        if (players.isEmpty() && spectators.isEmpty()) {
-            try {
-                GameStore.games.remove(id) 
-                LobbyManager.broadcastGamesList()
-            } catch (e: Exception) {
-                println("Failed to remove game from store: ${e.message}")
-            }
-
+              
+        try {
+            GameStore.games.remove(id) 
+            LobbyManager.broadcastGamesList()
+        } catch (e: Exception) {
+            println("Failed to remove game from store: ${e.message}")
         }
+
+        
         return
     }
 

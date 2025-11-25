@@ -36,13 +36,13 @@ func _on_game_over(winner_color: Variant):
 	
 	if Store.is_viewer:
 		message = "Game ended."
-  else:
-	  if winner_color == null or winner_color == "":
-		  message = "Draw!"
-	  elif winner_color == Store.my_color:
-		  message = "You Won!"
-	  else:
-		  message = "You Lost!"
+	else:
+		if winner_color == null or winner_color == "":
+			message = "Draw!"
+		elif winner_color == Store.my_color:
+			message = "You Won!"
+		else:
+			message = "You Lost!"
 	
 	result_label.text = message
 	

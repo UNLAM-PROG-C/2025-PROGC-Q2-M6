@@ -33,8 +33,10 @@ size_flags_horizontal = 4
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
-text = "Join Game!"
+text = "Play Game!"
 
 [node name="JoinAsViewer" type="Button" parent="HBoxContainer"]
 layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
 text = "Join as Viewer!"
