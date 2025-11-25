@@ -1,9 +1,6 @@
 extends Node
 
-signal state_changed
 signal board_changed(board)
-signal allowed_moves_changed(highlights)
-signal turn_changed(player_id)
 signal game_over(winner_color)
 signal last_move_changed(last_move)
 signal new_game_started()
@@ -21,7 +18,7 @@ var is_viewer: bool = false
 var has_received_initial_state: bool = false
 
 func _ready() -> void:
-	Networking.connect("game_state", Callable(self, "apply_state"))
+	Networking.game_state.connect(apply_state)
 
 func clear():
 	is_viewer = false
@@ -36,7 +33,7 @@ func clear():
 
 
 func apply_state(payload: Dictionary):
-	var is_first_state = not has_received_initial_state
+	var is_first_state: bool = not has_received_initial_state
 	has_received_initial_state = true
 	
 	game_id = payload.gameId
@@ -49,19 +46,15 @@ func apply_state(payload: Dictionary):
 	
 	var players_dict = payload.players
 	var players_count = players_dict.size()
-	var my_id = Networking.player_id
+	var my_id: String = Networking.player_id
 	if players_count >= 2 and not players_dict.has(my_id):
 		is_viewer = true
 		my_color = ""
-		emit_signal("allowed_moves_changed", [])
 	else:
 		is_viewer = false
 		my_color = players_dict[my_id].get("color", "")
-		emit_signal("allowed_moves_changed", _highlight_tiles(allowed_moves))
-	 
+
 	emit_signal("board_changed", board)	
-	emit_signal("turn_changed", player_turn)
-	emit_signal("state_changed")
 	emit_signal("last_move_changed", last_move)
 	
 	if is_first_state:
@@ -85,14 +78,6 @@ func _array_to_map(arr: Array) -> Dictionary:
 			i += 1
 
 	return map
-
-
-func _highlight_tiles(moves: Array) -> Array:
-	var result := []
-	for m in moves:
-		if m.has("to"):
-			result.append(m.to)
-	return result
 
 func try_move(from: String, to: String) -> bool:
 	if (is_viewer):

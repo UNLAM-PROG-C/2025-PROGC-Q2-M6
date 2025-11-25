@@ -23,10 +23,10 @@ func _ready():
 	move_indicator.visible = false
 	add_child(move_indicator)
 	
-	Store.connect("last_move_changed", Callable(self, "_on_last_move_changed"))
-	Store.connect("highlight_moves", Callable(self, "_on_moves_changed"))
+	Store.last_move_changed.connect(_on_last_move_changed)
+	Store.highlight_moves.connect(_on_moves_changed)
 
-func _on_moves_changed(from_square: String, available_squares: Array):
+func _on_moves_changed(_from_square: String, available_squares: Array):
 	move_indicator.visible = tile_name.to_upper() in available_squares
 
 func _on_last_move_changed(last_move: Dictionary):
