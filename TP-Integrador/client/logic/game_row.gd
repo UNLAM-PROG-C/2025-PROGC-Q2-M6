@@ -1,4 +1,5 @@
 extends PanelContainer
+class_name GameRow
 
 signal join_pressed(game_id)
 signal viewer_pressed(game_id)
@@ -18,11 +19,11 @@ signal viewer_pressed(game_id)
 
 func _ready() -> void:
 	_update_ui()
-	join_button.connect("pressed", Callable(self, "_on_join_pressed"))
-	viewer_button.connect("pressed", Callable(self, "_on_viewer_pressed"))
+	join_button.pressed.connect(_on_join_pressed)
+	viewer_button.pressed.connect(_on_viewer_pressed)
 
 func setup(data: Dictionary) -> void:
-	call_deferred("_setup_deferred", data)
+	_setup_deferred.call_deferred(data)
 
 func _setup_deferred(data: Dictionary):
 	game_id = str(data.get("id", ""))

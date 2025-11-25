@@ -1,6 +1,6 @@
 extends Node
 
-@onready var menu: Control = $Menu
+@onready var menu: Menu = $Menu
 var game: Node2D
 var board: Node2D
 @onready var game_over_layer: CanvasLayer = $GameOverLayer
@@ -9,14 +9,12 @@ var board: Node2D
 
 func _ready():
 	game_over_layer.visible = false
-	menu.connect("left_game_ack", Callable(self,"_on_back_to_menu"))
-	back_to_menu_btn.connect("pressed", Callable(self, "_on_back_to_menu"))
-	call_deferred("_connect_store_signals")
-	Networking.connect("joined_as_spectator", Callable(self, "_on_viewer_joined"))
+	menu.left_game_ack.connect(_on_back_to_menu)
+	back_to_menu_btn.pressed.connect(_on_back_to_menu)
+	Networking.joined_as_spectator.connect(_on_viewer_joined)
+	Store.game_over.connect(_on_game_over)
+	Store.new_game_started.connect(_on_game_started)
 	
-func _connect_store_signals():
-	Store.connect("game_over", Callable(self, "_on_game_over"))
-	Store.connect("new_game_started", Callable(self, "_on_game_started"))
 
 func _on_viewer_joined():
 	Store.set_viewer()
@@ -46,7 +44,7 @@ func _on_game_over(winner_color: Variant):
 	
 	result_label.text = message
 	
-	call_deferred("_show_game_over_panel")
+	_show_game_over_panel()
 
 func _show_game_over_panel():
 	game_over_layer.visible = true

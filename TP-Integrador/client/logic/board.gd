@@ -35,13 +35,13 @@ func _ready():
 	add_to_group("board_root")
 	_generate_board()
 	_redraw_pieces(Store.board)
-	_connect_store_signal()
-	exit_button.connect("pressed", Callable(self, "_on_exit_button_pressed"))
-	Networking.connect("opponent_left", Callable(self, "_on_opponent_left"))
-	Networking.connect("player_left", Callable(self, "_on_player_left"))
+	_connect_signals()
 
-func _connect_store_signal():
-	Store.connect("board_changed", Callable(self, "_on_board_changed"))
+func _connect_signals():
+	Store.board_changed.connect(_on_board_changed)
+	exit_button.pressed.connect(_on_exit_button_pressed)
+	Networking.opponent_left.connect(_on_opponent_left)
+	Networking.player_left.connect(_on_player_left)
 
 func _generate_board():
 	var reversed := Store.my_color == Config.PlayerColor.BLACK

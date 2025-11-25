@@ -29,7 +29,7 @@ Mantiene el estado global de la partida:
 - Turno actual (`player_turn`)
 - Último movimiento (`last_move`)
 - Flags de fin de juego (checkmate, stalemate)
-- Emite señales cuando el estado cambia: `board_changed`, `allowed_moves_changed`, `turn_changed`, `game_over`, `state_changed`
+- Emite señales cuando el estado cambia: `board_changed`, `turn_changed`, `game_over`, `state_changed`
 
 ### Flujo de Datos
 
@@ -49,14 +49,14 @@ Mantiene el estado global de la partida:
 
 El diseño basado en señales elimina la necesidad de polling manual del estado:
 
-| Señal                               | Emisor     | Propósito                                  |
-|-------------------------------------|------------|--------------------------------------------|
-| `board_changed(board)`              | Store      | Actualizar sprites de piezas en el tablero |
-| `allowed_moves_changed(highlights)` | Store      | Resaltar casillas válidas para movimiento  |
-| `turn_changed(player_id)`           | Store      | Mostrar indicador de turno                 |
-| `game_over(winner_color)`           | Store      | Mostrar overlay de fin de juego            |
-| `connected(player_id)`              | Networking | Confirmación de conexión establecida       |
-| `opponent_left`                     | Networking | Notificar abandono del oponente            |
+| Señal                         | Emisor     | Propósito                                  |
+|-------------------------------|------------|--------------------------------------------|
+| `board_changed(board)`        | Store      | Actualizar sprites de piezas en el tablero |
+| `highlight_moves(highlights)` | Store      | Resaltar casillas válidas para movimiento  |
+| `turn_changed(player_id)`     | Store      | Mostrar indicador de turno                 |
+| `game_over(winner_color)`     | Store      | Mostrar overlay de fin de juego            |
+| `connected(player_id)`        | Networking | Confirmación de conexión establecida       |
+| `opponent_left`               | Networking | Notificar abandono del oponente            |
 
 Las escenas solo se suscriben a las señales relevantes, promoviendo bajo acoplamiento y fácil extensibilidad.
 

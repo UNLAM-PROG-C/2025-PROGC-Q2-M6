@@ -1,4 +1,5 @@
 extends Control
+class_name Menu
 
 signal left_game_ack
 
@@ -13,7 +14,7 @@ signal left_game_ack
 @onready var cancel_button: Button = $LobbyPanel/CancelBtn
 
 @onready var status_label: Label = $LobbyPanel/StatusLabel
-@onready var game_list_panel: Control = $GameListPanel
+@onready var game_list_panel := $GameListPanel
 
 
 func _ready():
@@ -23,22 +24,25 @@ func _ready():
 	game_list_panel.visible = false
 	cancel_button.visible = false
 	
-	connect_button.connect("pressed", Callable(self, "_on_ConnectButton_pressed"))
-	create_button.connect("pressed", Callable(self, "_on_CreateButton_pressed"))
-	cancel_button.connect("pressed", Callable(self,"_on_leave_game"))
-	join_button.connect("pressed", Callable(self, "_on_JoinButton_pressed"))
-	game_list_panel.connect("join_game_requested", Callable(self, "_on_game_selected"))
-	game_list_panel.connect("join_game_viewer", Callable(self, "_on_game_selected_viewer"))
-	game_list_panel.connect("back_pressed", Callable(self, "_on_back_from_list"))
-	game_list_panel.connect("refresh_pressed", Callable(self, "_on_refresh_list"))
+	connect_button.pressed.connect(_on_ConnectButton_pressed)
+	create_button.pressed.connect(_on_CreateButton_pressed)
+	cancel_button.pressed.connect(_on_leave_game)
+	join_button.pressed.connect(_on_JoinButton_pressed)
+	
+	game_list_panel.join_game_requested.connect(_on_game_selected)
+	game_list_panel.join_game_viewer.connect(_on_game_selected_viewer)
+	game_list_panel.back_pressed.connect(_on_back_from_list)
+	game_list_panel.refresh_pressed.connect(_on_refresh_list)
+	
+	Networking.connected.connect(_on_connected)
+	Networking.connection_failed.connect(_on_connection_failed)
+	Networking.game_created.connect(_on_game_created)
+	Networking.joined_game.connect(_on_joined_game)
+	Networking.error_received.connect(_on_error)
+	Networking.games_list.connect(_on_games_list)
+	Networking.left_game.connect(_on_left_game)
 
-	Networking.connect("connected", Callable(self, "_on_connected"))
-	Networking.connect("connection_failed", Callable(self, "_on_connection_failed"))
-	Networking.connect("game_created", Callable(self, "_on_game_created"))
-	Networking.connect("joined_game", Callable(self, "_on_joined_game"))
-	Networking.connect("error_received", Callable(self, "_on_error"))
-	Networking.connect("games_list", Callable(self, "_on_games_list"))
-	Networking.connect("left_game", Callable(self, "_on_left_game"))
+
 	
 func reset_to_lobby():
 	connect_panel.visible = false
@@ -119,9 +123,6 @@ func _on_joined_game(game_id):
 	connect_panel.visible = false
 	lobby_panel.visible = false
 	game_list_panel.visible = false
-
-func _on_game_state(payload):
-	Store.apply_state(payload)
 
 func _on_game_selected_viewer(game_id):
 	game_list_panel.visible = false
