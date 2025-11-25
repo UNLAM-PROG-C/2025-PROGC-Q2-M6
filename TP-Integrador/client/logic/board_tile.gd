@@ -4,24 +4,30 @@ class_name BoardTile
 @export var tile_name: String = ""
 @export var is_dark: bool
 var highlight: ColorRect
+var move_indicator: Control
 
 func _draw() -> void:
 	draw_string(ThemeDB.fallback_font, Vector2(4, size.y - 4), tile_name,HORIZONTAL_ALIGNMENT_LEFT, -1, 8, Color.WHITE if is_dark else Color.BLACK)
 
 func _ready():
 	name = tile_name
-	color = Color(0.4, 0.3, 0.2) if is_dark else Color(0.9, 0.9, 0.9)
+	color = Config.TileColors.DARK if is_dark else Config.TileColors.LIGHT
 	highlight = ColorRect.new()
-	highlight.color = Color(1.0, 0.85, 0.2, 0.6)
+	highlight.color = Config.TileColors.HIGHLIGHT
 	highlight.visible = false
 	highlight.size = size
 	add_child(highlight)
+	
+	move_indicator = MoveIndicator.new()
+	move_indicator.size = size
+	move_indicator.visible = false
+	add_child(move_indicator)
+	
 	Store.connect("last_move_changed", Callable(self, "_on_last_move_changed"))
-#	Store.connect("allowed_moves_changed", self, "_on_moves_changed")
+	Store.connect("highlight_moves", Callable(self, "_on_moves_changed"))
 
-func _on_moves_changed(moves: Array):
-	highlight.visible = tile_name in moves
-
+func _on_moves_changed(from_square: String, available_squares: Array):
+	move_indicator.visible = tile_name.to_upper() in available_squares
 
 func _on_last_move_changed(last_move: Dictionary):
 	if last_move.has("from") and last_move.has("to"):

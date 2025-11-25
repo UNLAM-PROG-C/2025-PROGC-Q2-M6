@@ -7,6 +7,7 @@ signal turn_changed(player_id)
 signal game_over(winner_color)
 signal last_move_changed(last_move)
 signal new_game_started()
+signal highlight_moves(from_square, available_squares)
 
 var game_id: String
 var board: Dictionary = {}
@@ -18,6 +19,9 @@ var my_color: String = ""
 var last_move: Dictionary = {}
 var is_viewer: bool = false
 var has_received_initial_state: bool = false
+
+func _ready() -> void:
+	Networking.connect("game_state", Callable(self, "apply_state"))
 
 func clear():
 	is_viewer = false
@@ -112,3 +116,17 @@ func is_my_turn() -> bool:
 func set_viewer():
 	is_viewer = true
 	
+func highlight_from(square: String):
+	var from_up := square.to_upper()
+	var available := []
+	
+	for m in allowed_moves:
+		var mf := String(m.get("from", "")).to_upper()
+		if mf == from_up:
+			var mt := String(m.get("to", "")).to_upper()
+			available.append(mt)
+	
+	emit_signal("highlight_moves", from_up, available)
+
+func clear_highlights():
+	emit_signal("highlight_moves", "", [])

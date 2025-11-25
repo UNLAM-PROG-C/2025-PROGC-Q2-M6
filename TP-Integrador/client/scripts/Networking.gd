@@ -16,16 +16,15 @@ signal joined_as_spectator()
 signal player_left()
 
 var peer: WebSocketPeer
-var url: String = ""
 var is_connecting := false
 var is_open := false
 var player_id := ""
 
-func connect_ws(_url: String):
-	url = _url
+func connect_ws(url: String) -> void:
+	var normalized_url := normalize_ws_url(url)
 	peer = WebSocketPeer.new()
 
-	var err: int = peer.connect_to_url(url)
+	var err: int = peer.connect_to_url(normalized_url)
 	if err != OK:
 		emit_signal("connection_failed", "connect_to_url failed: %s" % err)
 		return
@@ -148,9 +147,33 @@ func send_leave_game():
 
 func send_list_games():
 	_send({
-		"type": "list_games"
+		"type": "subscribe_list_games"
 	})
-	
+func unsub_list_games():
+	_send({
+		"type": "unsubscribe_list_games"
+	})
 func _send(dict: Dictionary):
 	if peer != null and peer.get_ready_state() == WebSocketPeer.STATE_OPEN:
 		peer.send_text(JSON.stringify(dict))
+
+func normalize_ws_url(raw: String) -> String:
+	var url := raw.strip_edges()
+	
+	# Must always point to /ws
+	if not url.ends_with("/ws") and not url.ends_with("/ws/"):
+		if url.ends_with("/"):
+			url += "ws"
+		else:
+			url += "/ws"
+
+	# Already provided protocol
+	if url.begins_with("ws://") or url.begins_with("wss://"):
+		return url
+
+	# Localhost → assume ws
+	if url.begins_with("localhost") or url.begins_with("127."):
+		return "ws://" + url
+
+	# Everything else → assume wss
+	return "wss://" + url

@@ -12,6 +12,7 @@ class PlayerConnection : WebSocketListener {
     private var session: Session? = null
     private var isInGame: Boolean = false
     private var gameHandler: GameHandler? = null
+    private var subscribedToLobby: Boolean = false
 
     val mapper: ObjectMapper = jacksonObjectMapper()
         .registerModule(KotlinModule.Builder().build())
@@ -27,6 +28,7 @@ class PlayerConnection : WebSocketListener {
 
     override fun onWebSocketClose(statusCode: Int, reason: String?) {
         println("Player disconnected: $id, $statusCode, $reason")
+        handleUnsubListGames()
         // Si estaba en una partida, delegar la limpieza al GameHandler.
         try {
             if (isInGame && gameHandler != null) {
@@ -60,8 +62,9 @@ class PlayerConnection : WebSocketListener {
             is JoinGameMessage -> handleJoinGame(data)
             is MakeMoveMessage -> handleMakeMove(data)
             is LeaveGameMessage -> handleLeaveGame()
-            is ListGamesMessage -> handleListGames()
             is JoinGameSpectatorMessage -> handleJoinSpectatorGame(data)
+            is ListSubGamesMessage -> handleSubListGames()
+            is ListUnsGamesMessage -> handleUnsubListGames()
             else -> {
                 this.session!!.remote.sendString("""{"type": "error", "payload": "Unknown message type"}""")
             }
@@ -73,6 +76,7 @@ class PlayerConnection : WebSocketListener {
         if (game.handlePlayerJoin(Player(id, session!!, "WHITE"))) {
             this.gameHandler = game
             this.isInGame = true
+            LobbyManager.broadcastGamesList()
             session?.remote?.sendString("""{"type": "game_created", "payload": {"gameId": "${game.id}"}}""")
         } else {
             session?.remote?.sendString("""{"type": "error", "payload": "Failed to create game"}""")
@@ -82,6 +86,9 @@ class PlayerConnection : WebSocketListener {
     fun handleJoinGame(message: JoinGameMessage) {
         val gameId = message.payload.gameId
         val game = GameStore.getGame(gameId)
+
+        handleUnsubListGames()
+
         /**
          * TODO: matchmaking workaround
          */
@@ -165,22 +172,24 @@ class PlayerConnection : WebSocketListener {
         session?.remote?.sendString("""{"type": "move_made", "payload": {"from": "$from", "to": "$to"}}""")
     }
 
-    fun handleListGames() {
-    val gamesInfo = GameStore.games.values.map { game ->
-        mapOf(
-            "id" to game.id,
-            "players" to game.players.size,
-            "spectators" to game.spectators.size
-        )
+
+    fun handleSubListGames() {
+        // si no estaba suscripto, lo agregamos
+        if (!subscribedToLobby) {
+            LobbyManager.subscribe(this)
+            subscribedToLobby = true
+        }
+        // enviar lista actual
+        LobbyManager.sendGamesListTo(this)
     }
-
-    val response = mapOf(
-        "type" to "games_list",
-        "payload" to mapOf("games" to gamesInfo)
-    )
-
-    session?.remote?.sendString(
-        mapper.writeValueAsString(response)
-    )
-}
+    fun handleUnsubListGames() {
+        // si estaba suscripto, lo removemos
+        if (subscribedToLobby) {
+            LobbyManager.unsubscribe(this)
+            subscribedToLobby = false
+        }
+    }
+    fun send(data: Any) {
+        session?.remote?.sendString(mapper.writeValueAsString(data))
+    }
 }

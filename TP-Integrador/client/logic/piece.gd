@@ -24,11 +24,9 @@ func _gui_input(event: InputEvent) -> void:
 		
 func _on_drag_start(event: InputEventMouseButton) -> void:
 	if not Store.is_my_turn():
-		print("Cannot move: not your turn")
 		return
 	
 	if Store.my_color != "" and not piece_name.begins_with(Store.my_color):
-		print("Cannot move: opponent's piece")
 		return
 	
 	dragging = true
@@ -36,6 +34,8 @@ func _on_drag_start(event: InputEventMouseButton) -> void:
 	original_square = board.get_square_from_pos(global_position)
 	drag_offset = global_position - event.global_position
 	move_to_front()
+	
+	Store.highlight_from(original_square)
 
 func _on_drag_motion(event: InputEventMouseMotion):
 	if dragging:
@@ -44,19 +44,16 @@ func _on_drag_motion(event: InputEventMouseMotion):
 func _on_drag_end(event: InputEventMouseButton) -> void:
 	dragging = false
 	
-	var dropped_square := board.get_square_from_pos(event.global_position)
+	Store.clear_highlights()
 	
-	print("Attempting move %s from %s to %s" % [piece_name, original_square, dropped_square])
+	var dropped_square := board.get_square_from_pos(event.global_position)
 	
 	if dropped_square == "":
 		global_position = original_position
-		print("Invalid move: dropped outside the board")
 		return
 	
 	if Store.try_move(original_square, dropped_square):
-		print("Move %s from %s to %s accepted" % [piece_name, original_square, dropped_square])
 		global_position = board.get_tile_position(dropped_square)
 		Networking.send_make_move(original_square, dropped_square)
 	else:
-		print("Move %s from %s to %s rejected" % [piece_name, original_square, dropped_square])
 		global_position = original_position

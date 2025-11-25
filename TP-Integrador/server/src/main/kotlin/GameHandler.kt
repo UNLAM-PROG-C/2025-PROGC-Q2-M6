@@ -171,6 +171,7 @@ class GameHandler {
         if (players.isEmpty() && spectators.isEmpty()) {
             try {
                 GameStore.games.remove(id) 
+                LobbyManager.broadcastGamesList()
             } catch (e: Exception) {
                 println("Failed to remove game from store: ${e.message}")
             }

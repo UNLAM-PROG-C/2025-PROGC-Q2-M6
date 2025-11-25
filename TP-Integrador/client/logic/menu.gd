@@ -1,6 +1,5 @@
 extends Control
 
-signal game_started
 signal left_game_ack
 
 @onready var connect_panel: VBoxContainer = $ConnectPanel
@@ -18,6 +17,8 @@ signal left_game_ack
 
 
 func _ready():
+	server_url.text = Config.MenuDefaults.REMOTE_SERVER_URL if OS.has_feature("template") else Config.MenuDefaults.LOCAL_SERVER_URL
+	player_name.text = "" if OS.has_feature("template") else "Pepe"
 	lobby_panel.visible = false
 	game_list_panel.visible = false
 	cancel_button.visible = false
@@ -31,19 +32,15 @@ func _ready():
 	game_list_panel.connect("back_pressed", Callable(self, "_on_back_from_list"))
 	game_list_panel.connect("refresh_pressed", Callable(self, "_on_refresh_list"))
 
-	
-	# --- Networking signals ---
 	Networking.connect("connected", Callable(self, "_on_connected"))
 	Networking.connect("connection_failed", Callable(self, "_on_connection_failed"))
 	Networking.connect("game_created", Callable(self, "_on_game_created"))
 	Networking.connect("joined_game", Callable(self, "_on_joined_game"))
-	Networking.connect("game_state", Callable(self, "_on_game_state"))
 	Networking.connect("error_received", Callable(self, "_on_error"))
 	Networking.connect("games_list", Callable(self, "_on_games_list"))
 	Networking.connect("left_game", Callable(self, "_on_left_game"))
 	
 func reset_to_lobby():
-	# Resetear todos los paneles y botones al estado inicial del lobby
 	connect_panel.visible = false
 	lobby_panel.visible = true
 	game_list_panel.visible = false
@@ -54,9 +51,9 @@ func reset_to_lobby():
 	
 	status_label.text = ""
 
-func _on_ConnectButton_pressed():
-	var url = server_url.text.trim_suffix(" ")
-	var playerName = player_name.text.strip_edges()
+func _on_ConnectButton_pressed() -> void:
+	var url := server_url.text.trim_suffix(" ")
+	var playerName := player_name.text.strip_edges()
 
 	if url.is_empty() or playerName.is_empty():
 		status_label.text = "Enter server URL + name."
@@ -91,10 +88,8 @@ func _on_CreateButton_pressed():
 
 func _on_game_created(game_id):
 	status_label.text = "Game created.\nWaiting for opponent...\nGame ID: %s" % game_id
-	# Deshabilitar botón de crear/join
 	create_button.disabled = true
 	join_button.disabled = true
-	#cancel visible 
 	cancel_button.visible = true
 	
 
@@ -105,7 +100,6 @@ func _on_game_created(game_id):
 func _on_JoinButton_pressed():
 	lobby_panel.visible = false
 	game_list_panel.visible = true
-	# pedir lista de partida
 	Networking.send_list_games()
 
 
@@ -122,21 +116,12 @@ func _on_games_list(payload):
 #
 
 func _on_joined_game(game_id):
-	# volvemos a ocultar todo y esperar el game_state
 	connect_panel.visible = false
 	lobby_panel.visible = false
 	game_list_panel.visible = false
-#
-# --- STEP 4: GAME STATE ARRIVES => START GAME ---
-#
 
 func _on_game_state(payload):
-	# The very first game_state means:
-	# - Both players are in the game
-	# - Board is ready
-	# - Game can start
 	Store.apply_state(payload)
-
 
 func _on_game_selected_viewer(game_id):
 	game_list_panel.visible = false
@@ -149,11 +134,12 @@ func _on_game_selected(game_id):
 	lobby_panel.visible = false
 	status_label.text = "Joining game %s..." % game_id
 	Networking.send_join_game(game_id)
+	Networking.unsub_list_games()
 
 func _on_back_from_list():
 	game_list_panel.visible = false
 	lobby_panel.visible = true
-
+	Networking.unsub_list_games()
 # leave game request due cancel or opponent left
 func _on_leave_game():
 	Networking.send_leave_game()
