@@ -92,7 +92,7 @@ El cliente utiliza el mismo protocolo que el servidor. Ver README del servidor p
 - `join_game` - Unirse a partida existente
 - `make_move` - Ejecutar movimiento
 - `leave_game` - Abandonar partida
-- `list_games` - Solicitar lista de partidas
+- `join_viewer_game` - Unirse a la partida como espectador
 - `subscribe_list_games` - Suscribirse para recibir la lista de partidas activas
 - `unsubscribe_list_games` - Desuscribirse para dejar de recibir la lista de partidas activas
 - `exit_game` - Finalizar la conexión.
