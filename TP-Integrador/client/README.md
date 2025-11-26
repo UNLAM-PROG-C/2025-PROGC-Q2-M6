@@ -49,14 +49,25 @@ Mantiene el estado global de la partida:
 
 El diseño basado en señales elimina la necesidad de polling manual del estado:
 
-| Señal                         | Emisor     | Propósito                                  |
-|-------------------------------|------------|--------------------------------------------|
-| `board_changed(board)`        | Store      | Actualizar sprites de piezas en el tablero |
-| `highlight_moves(highlights)` | Store      | Resaltar casillas válidas para movimiento  |
-| `turn_changed(player_id)`     | Store      | Mostrar indicador de turno                 |
-| `game_over(winner_color)`     | Store      | Mostrar overlay de fin de juego            |
-| `connected(player_id)`        | Networking | Confirmación de conexión establecida       |
-| `opponent_left`               | Networking | Notificar abandono del oponente            |
+| Señal                         | Emisor        | Propósito                                  |
+|-------------------------------|---------------|--------------------------------------------|
+| `board_changed(board)`        | Store         | Actualizar sprites de piezas en el tablero |
+| `highlight_moves(highlights)` | Store         | Resaltar casillas válidas para movimiento  |
+| `turn_changed(player_id)`     | Store         | Mostrar indicador de turno                 |
+| `game_over(winner_color)`     | Store         | Mostrar overlay de fin de juego            |
+| `connected(player_id)`        | Networking    | Confirmación de conexión establecida       |
+| `opponent_left`               | Networking    | Notificar abandono del oponente            |
+| `player_left  `               | Networking    | Notificar abandono de jugador a espectador |
+| `left_game`                   | Networking    | Confirmacion de abandono de partida        |
+| `joined_as_spectator`         | Networking    | Confirmacion de ingreso como espectador    |
+| `joined_game`                 | Networking    | Confirmacion de ingreso como jugador       |
+| `games_list(payload)`         | Networking    | Recepcion de lista de partidas activas     |
+| `back_pressed()`              | GameListPanel | Notifica volver al menú.                   |
+| `refresh_pressed()`           | GameListPanel | Solicita actualizar la lista de partidas.  |
+| `join_game_requested(game_id)`| GameListPanel | Pedido para unirse como jugador.           |
+| `join_game_viewer(game_id)`   | GameListPanel | Pedido para unirse como espectador.        |
+| `last_move_changed(last_move)` | Store        | Notifica último movimiento.                |
+| `new_game_started()`           | Store        | Notifica que una nueva partida ha comenzado|
 
 Las escenas solo se suscriben a las señales relevantes, promoviendo bajo acoplamiento y fácil extensibilidad.
 
@@ -81,7 +92,10 @@ El cliente utiliza el mismo protocolo que el servidor. Ver README del servidor p
 - `join_game` - Unirse a partida existente
 - `make_move` - Ejecutar movimiento
 - `leave_game` - Abandonar partida
-- `list_games` - Solicitar lista de partidas activas
+- `list_games` - Solicitar lista de partidas
+- `subscribe_list_games` - Suscribirse para recibir la lista de partidas activas
+- `unsubscribe_list_games` - Desuscribirse para dejar de recibir la lista de partidas activas
+- `exit_game` - Finalizar la conexión.
 
 ### Validación Local
 
