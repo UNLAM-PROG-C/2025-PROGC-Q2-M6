@@ -1,4 +1,4 @@
-# Ajedrez
+# ChessGame
 
 Juego de ajedrez multiplayer con arquitectura cliente-servidor desarrollado para la materia **Programación Concurrente** de la Universidad Nacional de La Matanza.
 
