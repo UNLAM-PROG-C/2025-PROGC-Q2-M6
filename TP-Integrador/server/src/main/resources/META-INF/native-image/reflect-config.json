@@ -76,6 +76,17 @@
     "allDeclaredConstructors": true,
     "allPublicMethods": true,
     "allDeclaredFields": true
+  },
+  {
+    "name": "ExitGameMessage",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "JoinGameSpectatorMessage",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
   }
-
 ]
