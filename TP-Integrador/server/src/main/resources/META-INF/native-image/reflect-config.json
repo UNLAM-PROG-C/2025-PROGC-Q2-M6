@@ -88,5 +88,11 @@
     "allDeclaredConstructors": true,
     "allPublicMethods": true,
     "allDeclaredFields": true
+  },
+  {
+    "name": "JoinGameSpectatorPayload",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
   }
 ]
