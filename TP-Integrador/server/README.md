@@ -57,9 +57,12 @@ Todos los mensajes requieren el campo `type`:
 |------|---------|-------------|
 | `create_game` | - | Crea una nueva partida |
 | `join_game` | `{ gameId }` | Une al jugador a una partida existente |
+| `join_viewer_game` |  `{ gameId }` | Une al espectador a una partida |
 | `make_move` | `{ from, to }` | Ejecuta un movimiento (notación algebraica) |
 | `leave_game` | - | Abandona la partida actual |
-| `list_games` | - | Solicita lista de partidas activas |
+| `subscribe_list_games` | - | El jugador solicita suscribirse para recibir lista de partidas activas |
+| `unsubscribe_list_games` | - | El jugador solicita desuscribirse para no recibir la lista de partidas |
+
 
 ### Mensajes Salientes
 
