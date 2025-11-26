@@ -27,6 +27,7 @@ El servidor utiliza el modelo de threading de Jetty para procesar conexiones Web
 **Estructuras Thread-Safe:**
 - `ConcurrentHashMap` en `GameStore.games` para almacenamiento concurrente de partidas
 - `CopyOnWriteArrayList` para listas de jugadores y espectadores en `GameHandler` (optimizado para lecturas frecuentes, escrituras ocasionales)
+- `CopyOnWriteArraySet` en LobbyManager.subscribers Maneja la lista de jugadores suscritos al lobby para recibir la lista de partidas. Ideal para muchas iteraciones de broadcast y pocas suscripciones/desuscripciones.
 - Campo `@Volatile lastActivityMillis` garantiza visibilidad entre threads al evaluar inactividad
 
 **Limpieza Programada:**
@@ -44,6 +45,7 @@ src/main/kotlin/
 ├── PlayerConnection.kt     # Ciclo de vida de conexión, parsing y delegación de mensajes
 ├── GameHandler.kt          # Estado de partida, validación y broadcast de game_state
 ├── GameStore.kt            # Registro global de partidas + limpiador concurrente
+├── LobbyManager            # Registro de suscriptores a la lista de partidas activas y broadcast de la misma. 
 ├── IncomingMessages.kt     # Modelos tipados para mensajes entrantes
 └── DataClasses.kt          # Modelos de datos (Player, Spectator, SimpleMove)
 ```
