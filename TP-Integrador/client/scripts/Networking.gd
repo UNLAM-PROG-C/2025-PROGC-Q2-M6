@@ -20,10 +20,13 @@ var peer: WebSocketPeer
 var is_connecting := false
 var is_open := false
 var player_id := ""
-var normal_closure = 1000
+
+const HEARTBEAT_INTERVAL := 25
+
 func connect_ws(url: String) -> void:
 	var normalized_url := normalize_ws_url(url)
 	peer = WebSocketPeer.new()
+	peer.heartbeat_interval = HEARTBEAT_INTERVAL
 
 	var err: int = peer.connect_to_url(normalized_url)
 	if err != OK:
