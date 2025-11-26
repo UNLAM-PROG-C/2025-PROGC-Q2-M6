@@ -1,12 +1,7 @@
-import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArraySet
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 
 object LobbyManager {
-    // set thread-safe de PlayerConnection
     private val subscribers = CopyOnWriteArraySet<PlayerConnection>()
-
-    private val mapper = jacksonObjectMapper()
 
     fun subscribe(player: PlayerConnection) {
         subscribers.add(player)
